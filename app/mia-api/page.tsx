@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import React, { useState, useEffect, useRef } from 'react';
-import { Activity, ClipboardCheck, FileText, ChevronRight, Info, Layers, RefreshCw, Send, Search, PlayCircle, Clock } from 'lucide-react';
+import { FileText, RefreshCw, Send, Search, PlayCircle, Clock } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 
