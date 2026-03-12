@@ -42,6 +42,18 @@ type SessionInfoResponse = {
   missing_information?: string[];
 };
 
+type TranscriptionSegment = {
+  start?: number;
+  end?: number;
+  text?: string;
+  speaker?: string;
+};
+
+type TranscriptionResponse = {
+  segments?: TranscriptionSegment[];
+  transcription?: string;
+};
+
 type UploadResponse = {
   last_sequence_processed?: number;
 };
@@ -102,6 +114,7 @@ export default function MiaAudioTestBenchPage() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const transcriptionPollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const shouldFinalizeOnStopRef = useRef(false);
   const sequenceNumberRef = useRef(0);
 
@@ -132,6 +145,11 @@ export default function MiaAudioTestBenchPage() {
   const [feedbackScores, setFeedbackScores] = useState<FeedbackScores>(createDefaultFeedbackScores);
   const [status, setStatus] = useState("IDLE");
   const [missingInformation, setMissingInformation] = useState<string[]>([]);
+  const [transcriptionText, setTranscriptionText] = useState("");
+  const [transcriptionSegments, setTranscriptionSegments] = useState<TranscriptionSegment[]>([]);
+  const [isFetchingTranscription, setIsFetchingTranscription] = useState(false);
+  const [transcriptionError, setTranscriptionError] = useState("");
+  const [awaitingReadyTranscription, setAwaitingReadyTranscription] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const hasSession = sessionId.trim().length > 0;
@@ -160,6 +178,13 @@ export default function MiaAudioTestBenchPage() {
     }
   };
 
+  const stopTranscriptionPolling = () => {
+    if (transcriptionPollingRef.current) {
+      clearInterval(transcriptionPollingRef.current);
+      transcriptionPollingRef.current = null;
+    }
+  };
+
   const loadAudioInputs = useCallback(async () => {
     setIsLoadingAudioInputs(true);
     try {
@@ -184,6 +209,52 @@ export default function MiaAudioTestBenchPage() {
       setIsLoadingAudioInputs(false);
     }
   }, []);
+
+  const fetchTranscription = useCallback(
+    async (currentSessionId: string, silentIfNotReady = false) => {
+      if (!currentSessionId) {
+        return;
+      }
+
+      setIsFetchingTranscription(true);
+      setTranscriptionError("");
+
+      try {
+        const response = await fetch(buildUrl(`/v1/mia/sessions/${currentSessionId}/transcription`), {
+          method: "GET",
+          headers,
+        });
+
+        if (!response.ok) {
+          if (silentIfNotReady) {
+            return;
+          }
+          throw new Error(await getErrorMessage(response, "Failed to fetch transcription."));
+        }
+
+        const data = (await response.json()) as TranscriptionResponse;
+        setTranscriptionSegments(Array.isArray(data.segments) ? data.segments : []);
+        setTranscriptionText(typeof data.transcription === "string" ? data.transcription : "");
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Failed to fetch transcription.";
+        setTranscriptionError(message);
+      } finally {
+        setIsFetchingTranscription(false);
+      }
+    },
+    [headers],
+  );
+
+  const startTranscriptionPolling = useCallback(
+    (currentSessionId: string) => {
+      stopTranscriptionPolling();
+      void fetchTranscription(currentSessionId, true);
+      transcriptionPollingRef.current = setInterval(() => {
+        void fetchTranscription(currentSessionId, true);
+      }, POLLING_INTERVAL_MS);
+    },
+    [fetchTranscription],
+  );
 
   const pollFeedbackAndSessionInfo = async (currentSessionId: string) => {
     if (!currentSessionId) {
@@ -238,8 +309,16 @@ export default function MiaAudioTestBenchPage() {
 
       if (sessionInfoRes.ok) {
         const info = (await sessionInfoRes.json()) as SessionInfoResponse;
-        setStatus(info.status ?? "UNKNOWN");
+        const nextStatus = info.status ?? "UNKNOWN";
+        setStatus(nextStatus);
         setMissingInformation(Array.isArray(info.missing_information) ? info.missing_information : []);
+
+        if (nextStatus === "READY" && awaitingReadyTranscription && !isFetchingTranscription) {
+          setAwaitingReadyTranscription(false);
+          void fetchTranscription(currentSessionId);
+          stopPolling();
+          stopTranscriptionPolling();
+        }
       }
     } catch {
       setErrorMessage("Polling failed. Check network/API availability.");
@@ -304,6 +383,13 @@ export default function MiaAudioTestBenchPage() {
         setLastSequenceProcessed(currentSequence);
       }
 
+      if (isFinalChunk) {
+        setAwaitingReadyTranscription(true);
+        setTranscriptionError("");
+        startPolling(sessionId);
+        startTranscriptionPolling(sessionId);
+      }
+
       syncSequenceNumber(currentSequence + 1);
       setErrorMessage("");
     } catch (error) {
@@ -353,6 +439,11 @@ export default function MiaAudioTestBenchPage() {
       setPromptQuestions([]);
       setFeedbackScores(createDefaultFeedbackScores());
       setMissingInformation([]);
+      setTranscriptionText("");
+      setTranscriptionSegments([]);
+      setTranscriptionError("");
+      setAwaitingReadyTranscription(false);
+      stopTranscriptionPolling();
       setStatus("INITIALISING");
       setErrorMessage("");
       void pollFeedbackAndSessionInfo(data.session_id);
@@ -378,7 +469,14 @@ export default function MiaAudioTestBenchPage() {
     mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
     mediaStreamRef.current = null;
     setIsRecording(false);
-    stopPolling();
+
+    if (finalizeOnStop) {
+      setAwaitingReadyTranscription(true);
+      setStatus("PROCESSING");
+      startPolling(sessionId);
+    } else {
+      stopPolling();
+    }
   };
 
   const startRecording = async () => {
@@ -450,6 +548,7 @@ export default function MiaAudioTestBenchPage() {
 
     return () => {
       stopPolling();
+      stopTranscriptionPolling();
       mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
         mediaRecorderRef.current.stop();
@@ -647,9 +746,19 @@ export default function MiaAudioTestBenchPage() {
                 <h2 className="text-base font-semibold">Session Status</h2>
                 <p className="text-xs text-slate-500">Session ID: {sessionId || "Not started"}</p>
               </div>
-              <span className="inline-flex items-center gap-2 rounded-full border bg-slate-50 px-3 py-1 text-xs font-semibold">
-                <Activity size={14} /> {status}
-              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => void fetchTranscription(sessionId)}
+                  disabled={!hasSession || status !== "READY" || isFetchingTranscription}
+                  className="rounded-md border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isFetchingTranscription ? "Loading..." : "View Transcription"}
+                </button>
+                <span className="inline-flex items-center gap-2 rounded-full border bg-slate-50 px-3 py-1 text-xs font-semibold">
+                  <Activity size={14} /> {status}
+                </span>
+              </div>
             </div>
 
             <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -726,6 +835,51 @@ export default function MiaAudioTestBenchPage() {
                 );
               })}
             </div>
+          </div>
+        </section>
+
+        <section>
+          <div className="rounded-2xl border bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h2 className="text-base font-semibold">Session Transcription</h2>
+              <span className="text-xs text-slate-500">Available when status is READY</span>
+            </div>
+
+            {status === "READY" ? (
+              <>
+                <textarea
+                  value={transcriptionText}
+                  readOnly
+                  placeholder="Transcription will appear here after processing completes."
+                  className="min-h-40 w-full rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700"
+                />
+
+                {transcriptionSegments.length > 0 ? (
+              <div className="mt-4 space-y-2">
+                <h3 className="text-sm font-semibold">Segments</h3>
+                <div className="space-y-2">
+                  {transcriptionSegments.map((segment, index) => (
+                    <div key={`${segment.start}-${segment.end}-${index}`} className="rounded-md border border-slate-200 p-3">
+                      <div className="mb-1 text-xs text-slate-500">
+                        {(segment.start ?? 0).toFixed(1)}s - {(segment.end ?? 0).toFixed(1)}s
+                        {segment.speaker ? ` • ${segment.speaker}` : ""}
+                      </div>
+                      <p className="text-sm text-slate-700">{segment.text || ""}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+              </>
+            ) : (
+              <p className="text-sm text-slate-500">
+                Transcription details will appear automatically after final chunk upload when status becomes READY.
+              </p>
+            )}
+
+            {transcriptionError ? (
+              <p className="mt-3 text-sm text-rose-700">{transcriptionError}</p>
+            ) : null}
           </div>
         </section>
 
