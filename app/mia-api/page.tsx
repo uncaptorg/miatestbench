@@ -10,61 +10,89 @@ export default function MiaApiPage() {
   const [isRendering, setIsRendering] = useState(false);
   const [mermaidLoaded, setMermaidLoaded] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const mermaidRef = useRef<HTMLDivElement | null>(null);
+  const mainMermaidRef = useRef<HTMLDivElement | null>(null);
+  const phase5MermaidRef = useRef<HTMLDivElement | null>(null);
 
   const getMermaid = () => (window as Window & { mermaid?: {
     initialize: (config: unknown) => void;
     render: (id: string, text: string) => Promise<{ svg: string }>;
   } }).mermaid;
 
-  const mermaidChart = `
+  const mainMermaidChart = `
     sequenceDiagram
       autonumber
       participant Client as Innowell App
-      participant Scribe as MIA Scribe Endpoint API
-      participant Innowell as MIA Innowell Endpoint API
-      participant Recs as MIA Care Plan Endpoint API
+      participant MIA as MIA API
 
-      Note over Client, Scribe: Phase 0: Session Initialization
-      Client->>Scribe: POST /start-session (Patient Basic Details + Session Metadata)
-      Scribe-->>Client: 201 Created (session_id)
+      Note over Client, MIA: Phase 0: Session Initialization
+      Client->>MIA: POST /start-session (Patient Context + Session Metadata)
+      MIA-->>Client: 201 Created (session_id)
 
-      Note over Client, Scribe: Phase 1: Real-Time Session
+      Note over Client, MIA: Phase 1: Real-Time Session
       loop Every 15-30 seconds
-          Client->>Scribe: POST /audio-chunk (session_id, data)
-          Scribe-->>Client: 202 Accepted
+          Client->>MIA: POST /audio-chunk (session_id, data)
+          MIA-->>Client: 202 Accepted
           
-          Client->>Scribe: GET /session-feedback (session_id)
-          Scribe-->>Client: 200 OK ( 1-3 Questions + Domain Completeness Indicators)
+          Client->>MIA: GET /session-feedback (session_id)
+          MIA-->>Client: 200 OK ( 1-3 Questions + Domain Completeness Indicators)
       end
 
-      Note over Client, Scribe: Phase 2: Post-Session Processing
-      Client->>Scribe: POST /finalise-session (session_id)
-      Scribe-->>Client: 202 Processing
+      Note over Client, MIA: Phase 2: Post-Session Processing
+      Client->>MIA: POST /audio-check (session_id, final_chunk=true)
+      MIA-->>Client: 202 Processing
       
       loop Until Processing Complete
-          Client->>Scribe: GET /session/status (session_id)
-          Scribe-->>Client: 200 OK (Status = processing | completed | failed)
+          Client->>MIA: GET /session/details (session_id)
+          MIA-->>Client: 200 OK (Status + Summary + Assumptions + Missing Information)
       end
-      Client->>Scribe: GET /session/details (session_id)
-      Scribe-->>Client: 200 OK (Full Transcript, Summary Notes, Audio file url)
 
-      Note over Client, Innowell: Phase 3: Questionnaire Automation
-      Client->>Innowell: POST /map-questionnaire (session_id, context)
-      Innowell-->>Client: 200 OK (Pre-filled Answers with confidence scores)
+        Note over Client, MIA: Phase 4: Care Planning (Async)
+        Client->>MIA: POST /generate-care-plan (session_id)
+        MIA-->>Client: 202 Accepted (plan_id)
 
-      Note over Client, Recs: Phase 4: Care Planning (Async)
-      Client->>Recs: POST /generate-care-plan (session_id)
-      Recs-->>Client: 202 Accepted (plan_id)
-      
-      loop Until Plan Ready (Status is 'completed')
-          Client->>Recs: GET /care-plan/{plan_id}/status (Poll)
-          Recs-->>Client: 200 OK (status: processing | completed | failed)
-          Client->>Recs: GET /care-plan/{plan_id} (Retrieve final plan once completed)
-          Recs-->>Client: 200 OK (Care Plan Details)
+        loop Care Plan Editing Loop
+          Client->>MIA: POST /care-plan/{plan_id}/update (notes, change_requests)
+          MIA-->>Client: 202 Accepted (updated_plan_id)
+          Client->>MIA: GET /care-plan/{updated_plan_id}
+          MIA-->>Client: 200 OK (Updated Care Plan)
+        end
+  `;
+
+  const phase5MermaidChart = `
+    sequenceDiagram
+      autonumber
+      participant Client as Innowell App
+      participant MIA as MIA API
+
+      Note over Client, MIA: Plan-Only Session (No Audio Stream)
+      Client->>MIA: POST /create-session (Patient + Assessment Data)
+      MIA-->>Client: 201 Created (session_id)
+
+      loop Multiple Care Plan Requests Per Session
+          Client->>MIA: POST /generate-care-plan (session_id, objective/context)
+          MIA-->>Client: 202 Accepted (plan_id)
+
+          loop Until Plan Ready
+            Client->>MIA: GET /care-plan/{plan_id}/status
+            MIA-->>Client: 200 OK (status: processing | completed | failed)
+          end
+
+          Client->>MIA: GET /care-plan/{plan_id}
+          MIA-->>Client: 200 OK (Generated Care Plan)
+
+          opt If clinician adds notes or requests changes
+            Client->>MIA: POST /care-plan/{plan_id}/update (notes, change_requests)
+            MIA-->>Client: 202 Accepted (updated_plan_id)
+
+            loop Until Updated Plan Ready
+              Client->>MIA: GET /care-plan/{updated_plan_id}/status
+              MIA-->>Client: 200 OK (status: processing | completed | failed)
+            end
+
+            Client->>MIA: GET /care-plan/{updated_plan_id}
+            MIA-->>Client: 200 OK (Updated Care Plan)
+          end
       end
-      
-      Note right of Client: Clinician Review/Edit Loop
   `;
 
   useEffect(() => {
@@ -102,15 +130,26 @@ export default function MiaApiPage() {
     let isMounted = true;
     const render = async () => {
       const mermaid = getMermaid();
-      if (activeTab === 'flow' && mermaidLoaded && mermaid && mermaidRef.current) {
+      if (activeTab === 'flow' && mermaidLoaded && mermaid && mainMermaidRef.current && phase5MermaidRef.current) {
         setIsRendering(true);
         try {
-          const id = `mermaid-render-${Date.now()}`;
-          mermaidRef.current.innerHTML = '';
-          const { svg } = await mermaid.render(id, mermaidChart);
-          if (isMounted && mermaidRef.current) {
-            mermaidRef.current.innerHTML = svg;
-          }
+          const renderDiagram = async (
+            container: HTMLDivElement,
+            chart: string,
+            suffix: string,
+          ) => {
+            const id = `mermaid-render-${suffix}-${Date.now()}`;
+            container.innerHTML = '';
+            const { svg } = await mermaid.render(id, chart);
+            if (isMounted) {
+              container.innerHTML = svg;
+            }
+          };
+
+          await Promise.all([
+            renderDiagram(mainMermaidRef.current, mainMermaidChart, 'main'),
+            renderDiagram(phase5MermaidRef.current, phase5MermaidChart, 'phase5'),
+          ]);
         } catch (err) {
           console.error("Mermaid error:", err);
         } finally {
@@ -120,10 +159,10 @@ export default function MiaApiPage() {
     };
     render();
     return () => { isMounted = false; };
-  }, [activeTab, mermaidLoaded, mermaidChart]);
+  }, [activeTab, mermaidLoaded, mainMermaidChart, phase5MermaidChart]);
 
   const exportFlowAsPng = async () => {
-    const container = mermaidRef.current;
+    const container = mainMermaidRef.current;
     if (!container) return;
 
     const svgElement = container.querySelector('svg');
@@ -240,7 +279,7 @@ export default function MiaApiPage() {
             <div className="bg-white p-4 md:p-8 rounded-2xl border shadow-sm relative min-h-[500px] flex flex-col items-center justify-center">
               <div className="absolute top-4 left-4 flex items-center gap-2 text-slate-400 text-xs font-medium uppercase tracking-widest">
                 <Search size={14} />
-                <span>Asynchronous API Call Flow</span>
+                <span>Audio Session Flow</span>
               </div>
               <button
                 onClick={exportFlowAsPng}
@@ -257,7 +296,16 @@ export default function MiaApiPage() {
                 </div>
               )}
 
-              <div ref={mermaidRef} className="w-full overflow-x-auto py-8 flex justify-center min-h-[400px]"></div>
+              <div ref={mainMermaidRef} className="w-full overflow-x-auto py-8 flex justify-center min-h-[400px]"></div>
+            </div>
+
+            <div className="bg-white p-4 md:p-8 rounded-2xl border shadow-sm relative min-h-[500px] flex flex-col items-center justify-center">
+              <div className="absolute top-4 left-4 flex items-center gap-2 text-slate-400 text-xs font-medium uppercase tracking-widest">
+                <Search size={14} />
+                <span>Phase 5: Plan-Only Session (No Audio Stream)</span>
+              </div>
+
+              <div ref={phase5MermaidRef} className="w-full overflow-x-auto py-8 flex justify-center min-h-[400px]"></div>
             </div>
           </div>
         ) : (

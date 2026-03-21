@@ -36,7 +36,7 @@ const createTargetUrl = (request: NextRequest, path: string[], baseUrl: string) 
 const proxy = async (
   request: NextRequest,
   context: { params: Promise<{ path: string[] }> },
-  method: "GET" | "POST",
+  method: "GET" | "POST" | "PUT",
 ) => {
   const environment = resolveRequestedEnvironment(request);
   const environmentConfig = getMiaEnvironmentConfig(environment);
@@ -94,3 +94,6 @@ export const GET = async (request: NextRequest, context: { params: Promise<{ pat
 
 export const POST = async (request: NextRequest, context: { params: Promise<{ path: string[] }> }) =>
   proxy(request, context, "POST");
+
+export const PUT = async (request: NextRequest, context: { params: Promise<{ path: string[] }> }) =>
+  proxy(request, context, "PUT");
