@@ -1,6 +1,6 @@
 "use client";
 
-import { Mic, Square, Play, LoaderCircle, Activity } from "lucide-react";
+import { Mic, Square, Play, LoaderCircle, Activity, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
@@ -36,10 +36,23 @@ type FeedbackResponse = {
   last_modified_date_utc?: string;
   next_expected_sequence?: number;
   illness_type_stage_and_trajectory_score?: number | null;
+  illness_type_stage_and_trajectory_rationale?: string | null;
   suicidal_thoughts_and_behaviours_score?: number | null;
+  suicidal_thoughts_and_behaviours_rationale?: string | null;
   social_and_occupational_functioning_score?: number | null;
+  social_and_occupational_functioning_rationale?: string | null;
   alcohol_and_substance_misuse_score?: number | null;
+  alcohol_and_substance_misuse_rationale?: string | null;
   physical_health_score?: number | null;
+  physical_health_rationale?: string | null;
+  audio_transcription?: string | null;
+  ooda_reasoning?: string | null;
+  last_transcription_completed_at?: string | null;
+  transcription_ms?: number | null;
+  llm_ms?: number | null;
+  observe_score?: number | null;
+  orient_score?: number | null;
+  decide_score?: number | null;
 };
 
 type SessionInfoResponse = {
@@ -75,15 +88,23 @@ type FeedbackScoreKey =
   | "alcohol_and_substance_misuse_score"
   | "physical_health_score";
 
+type FeedbackRationaleKey =
+  | "illness_type_stage_and_trajectory_rationale"
+  | "suicidal_thoughts_and_behaviours_rationale"
+  | "social_and_occupational_functioning_rationale"
+  | "alcohol_and_substance_misuse_rationale"
+  | "physical_health_rationale";
+
 type FeedbackScores = Record<FeedbackScoreKey, number | null>;
+type FeedbackRationales = Record<FeedbackRationaleKey, string | null>;
 type SessionMode = "audio" | "text";
 
-const SCORE_FIELDS: Array<{ key: FeedbackScoreKey; label: string }> = [
-  { key: "illness_type_stage_and_trajectory_score", label: "Illness Type Stage & Trajectory" },
-  { key: "suicidal_thoughts_and_behaviours_score", label: "Suicidal Thoughts & Behaviours" },
-  { key: "social_and_occupational_functioning_score", label: "Social & Occupational Functioning" },
-  { key: "alcohol_and_substance_misuse_score", label: "Alcohol & Substance Misuse" },
-  { key: "physical_health_score", label: "Physical Health" },
+const SCORE_FIELDS: Array<{ key: FeedbackScoreKey; rationaleKey: FeedbackRationaleKey; label: string }> = [
+  { key: "illness_type_stage_and_trajectory_score", rationaleKey: "illness_type_stage_and_trajectory_rationale", label: "Illness Type Stage & Trajectory" },
+  { key: "suicidal_thoughts_and_behaviours_score", rationaleKey: "suicidal_thoughts_and_behaviours_rationale", label: "Suicidal Thoughts & Behaviours" },
+  { key: "social_and_occupational_functioning_score", rationaleKey: "social_and_occupational_functioning_rationale", label: "Social & Occupational Functioning" },
+  { key: "alcohol_and_substance_misuse_score", rationaleKey: "alcohol_and_substance_misuse_rationale", label: "Alcohol & Substance Misuse" },
+  { key: "physical_health_score", rationaleKey: "physical_health_rationale", label: "Physical Health" },
 ];
 
 const createDefaultFeedbackScores = (): FeedbackScores => ({
@@ -92,6 +113,14 @@ const createDefaultFeedbackScores = (): FeedbackScores => ({
   social_and_occupational_functioning_score: null,
   alcohol_and_substance_misuse_score: null,
   physical_health_score: null,
+});
+
+const createDefaultFeedbackRationales = (): FeedbackRationales => ({
+  illness_type_stage_and_trajectory_rationale: null,
+  suicidal_thoughts_and_behaviours_rationale: null,
+  social_and_occupational_functioning_rationale: null,
+  alcohol_and_substance_misuse_rationale: null,
+  physical_health_rationale: null,
 });
 
 const RECORDING_TIMESLICE_MS = 5000;
@@ -161,6 +190,7 @@ export default function MiaAudioTestBenchPage() {
   const [clientPostcode, setClientPostcode] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.postcode);
   const [clientCountry, setClientCountry] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.country);
   const [enableGuidance, setEnableGuidance] = useState(true);
+  const [guidanceIntervalSeconds, setGuidanceIntervalSeconds] = useState(10);
   const [clientContext, setClientContext] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.context);
   const [draftClientAge, setDraftClientAge] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.age);
   const [draftClientGender, setDraftClientGender] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.gender);
@@ -180,6 +210,11 @@ export default function MiaAudioTestBenchPage() {
   const [isStartingSession, setIsStartingSession] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSendingFile, setIsSendingFile] = useState(false);
+  const [fileSendProgress, setFileSendProgress] = useState("");
+  const [fileChunkSizeKb, setFileChunkSizeKb] = useState(240);
+  const [fileChunkDelayMs, setFileChunkDelayMs] = useState(15000);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [finalizeOnStop, setFinalizeOnStop] = useState(true);
 
   const [sequenceNumber, setSequenceNumber] = useState(0);
@@ -189,7 +224,24 @@ export default function MiaAudioTestBenchPage() {
   const [summaryNotes, setSummaryNotes] = useState("");
   const [promptQuestions, setPromptQuestions] = useState<string[]>([]);
   const [feedbackScores, setFeedbackScores] = useState<FeedbackScores>(createDefaultFeedbackScores);
+  const [feedbackRationales, setFeedbackRationales] = useState<FeedbackRationales>(createDefaultFeedbackRationales);
+  const [liveTranscription, setLiveTranscription] = useState<string>("");
+  const [oodaReasoning, setOodaReasoning] = useState<string>("");
   const [status, setStatus] = useState("IDLE");
+
+  // Response timer (end-to-end: chunk upload → scores arrive)
+  const processingStartTimeRef = useRef<number | null>(null);
+  const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [elapsedMs, setElapsedMs] = useState<number | null>(null);
+  const [lastResponseMs, setLastResponseMs] = useState<number | null>(null);
+  const prevLastModifiedRef = useRef<string>("");
+  // Server-side timing breakdown from the API
+  const [lastTranscriptionMs, setLastTranscriptionMs] = useState<number | null>(null);
+  const [lastLlmMs, setLastLlmMs] = useState<number | null>(null);
+  // OODA stage quality scores (1-5)
+  const [observeScore, setObserveScore] = useState<number | null>(null);
+  const [orientScore, setOrientScore] = useState<number | null>(null);
+  const [decideScore, setDecideScore] = useState<number | null>(null);
   const [sessionSummary, setSessionSummary] = useState("");
   const [sessionAssumptions, setSessionAssumptions] = useState<string[]>([]);
   const [sessionMissingInformation, setSessionMissingInformation] = useState<string[]>([]);
@@ -205,6 +257,45 @@ export default function MiaAudioTestBenchPage() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const hasSession = sessionId.trim().length > 0;
+
+  const clearSession = () => {
+    stopPolling();
+    stopTranscriptionPolling();
+    setSessionId("");
+    persistSessionIdInUrl("");
+    syncSequenceNumber(0);
+    setLastSequenceProcessed(null);
+    setLastModifiedDateUtc("");
+    setNextExpectedSequence(null);
+    setSummaryNotes("");
+    setPromptQuestions([]);
+    setFeedbackScores(createDefaultFeedbackScores());
+    setFeedbackRationales(createDefaultFeedbackRationales());
+    setLiveTranscription("");
+    setOodaReasoning("");
+    setSessionSummary("");
+    setSessionAssumptions([]);
+    setSessionMissingInformation([]);
+    setSessionFailureReason("");
+    setTranscriptionText("");
+    setTranscriptionSegments([]);
+    setTranscriptionError("");
+    setAwaitingReadyTranscription(false);
+    setStatus("IDLE");
+    setErrorMessage("");
+    setFileSendProgress("");
+    setIsSendingFile(false);
+    setElapsedMs(null);
+    setLastResponseMs(null);
+    setLastTranscriptionMs(null);
+    setLastLlmMs(null);
+    setObserveScore(null);
+    setOrientScore(null);
+    setDecideScore(null);
+    processingStartTimeRef.current = null;
+    prevLastModifiedRef.current = "";
+    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+  };
   const transcriptionAvailable = status === "COMPLETED";
   const isAudioMode = sessionMode === "audio";
 
@@ -421,6 +512,53 @@ export default function MiaAudioTestBenchPage() {
           physical_health_score:
             typeof feedback.physical_health_score === "number" ? feedback.physical_health_score : null,
         });
+        setFeedbackRationales({
+          illness_type_stage_and_trajectory_rationale:
+            typeof feedback.illness_type_stage_and_trajectory_rationale === "string"
+              ? feedback.illness_type_stage_and_trajectory_rationale
+              : null,
+          suicidal_thoughts_and_behaviours_rationale:
+            typeof feedback.suicidal_thoughts_and_behaviours_rationale === "string"
+              ? feedback.suicidal_thoughts_and_behaviours_rationale
+              : null,
+          social_and_occupational_functioning_rationale:
+            typeof feedback.social_and_occupational_functioning_rationale === "string"
+              ? feedback.social_and_occupational_functioning_rationale
+              : null,
+          alcohol_and_substance_misuse_rationale:
+            typeof feedback.alcohol_and_substance_misuse_rationale === "string"
+              ? feedback.alcohol_and_substance_misuse_rationale
+              : null,
+          physical_health_rationale:
+            typeof feedback.physical_health_rationale === "string" ? feedback.physical_health_rationale : null,
+        });
+        if (typeof feedback.audio_transcription === "string" && feedback.audio_transcription) {
+          setLiveTranscription(feedback.audio_transcription);
+        }
+        if (typeof feedback.ooda_reasoning === "string" && feedback.ooda_reasoning) {
+          setOodaReasoning(feedback.ooda_reasoning);
+        }
+        // Stop timer when a new scored response arrives
+        if (
+          typeof feedback.last_modified_date_utc === "string" &&
+          feedback.last_modified_date_utc &&
+          feedback.last_modified_date_utc !== prevLastModifiedRef.current
+        ) {
+          if (processingStartTimeRef.current !== null) {
+            const elapsed = Date.now() - processingStartTimeRef.current;
+            setLastResponseMs(elapsed);
+          }
+          setElapsedMs(null);
+          if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+          processingStartTimeRef.current = null;
+          prevLastModifiedRef.current = feedback.last_modified_date_utc;
+          // Capture server-side breakdown
+          if (typeof feedback.transcription_ms === "number") setLastTranscriptionMs(feedback.transcription_ms);
+          if (typeof feedback.llm_ms === "number") setLastLlmMs(feedback.llm_ms);
+          if (typeof feedback.observe_score === "number") setObserveScore(feedback.observe_score);
+          if (typeof feedback.orient_score === "number") setOrientScore(feedback.orient_score);
+          if (typeof feedback.decide_score === "number") setDecideScore(feedback.decide_score);
+        }
       }
 
       if (sessionInfoRes.ok) {
@@ -591,6 +729,18 @@ export default function MiaAudioTestBenchPage() {
         startTranscriptionPolling(sessionId);
       }
 
+      // Start/restart timer on every chunk if not already running
+      if (processingStartTimeRef.current === null) {
+        processingStartTimeRef.current = Date.now();
+        setElapsedMs(0);
+        if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = setInterval(() => {
+          if (processingStartTimeRef.current !== null) {
+            setElapsedMs(Date.now() - processingStartTimeRef.current);
+          }
+        }, 100);
+      }
+
       syncSequenceNumber(currentSequence + 1);
       setErrorMessage("");
     } catch (error) {
@@ -598,6 +748,49 @@ export default function MiaAudioTestBenchPage() {
       setErrorMessage(`Audio upload failed for sequence ${currentSequence}: ${message}`);
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const sendAudioFile = async (file: File) => {
+    if (!hasSession) {
+      setErrorMessage("Start a session before sending a file.");
+      return;
+    }
+
+    const CHUNK_SIZE_BYTES = fileChunkSizeKb * 1024;
+    const INTER_CHUNK_DELAY_MS = fileChunkDelayMs;
+
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE_BYTES);
+
+    setIsSendingFile(true);
+    setErrorMessage("");
+    syncSequenceNumber(0);
+
+    // Start polling immediately — same as live recording
+    startPolling(sessionId);
+
+    try {
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * CHUNK_SIZE_BYTES;
+        const end = Math.min(start + CHUNK_SIZE_BYTES, file.size);
+        const chunk = file.slice(start, end, file.type || "audio/webm");
+        const isFinalChunk = i === totalChunks - 1;
+
+        setFileSendProgress(`Chunk ${i + 1} / ${totalChunks}`);
+        await uploadAudioChunk(chunk, isFinalChunk);
+
+        if (!isFinalChunk) {
+          await sleep(INTER_CHUNK_DELAY_MS);
+        }
+      }
+
+      setFileSendProgress("All chunks sent.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "File send failed.";
+      setErrorMessage(message);
+    } finally {
+      setIsSendingFile(false);
+      setTimeout(() => setFileSendProgress(""), 3000);
     }
   };
 
@@ -637,6 +830,7 @@ export default function MiaAudioTestBenchPage() {
       const payload: {
         mode: SessionMode;
         enable_guidance: boolean;
+        guidance_interval_seconds?: number;
         clinical_notes?: string;
         client_context: {
           demographics: {
@@ -653,6 +847,7 @@ export default function MiaAudioTestBenchPage() {
       } = {
         mode: sessionMode,
         enable_guidance: isAudioMode ? enableGuidance : false,
+        ...(isAudioMode && enableGuidance ? { guidance_interval_seconds: guidanceIntervalSeconds } : {}),
         client_context: {
           demographics: {
             age: normalizedAge,
@@ -702,6 +897,9 @@ export default function MiaAudioTestBenchPage() {
       setSummaryNotes("");
       setPromptQuestions([]);
       setFeedbackScores(createDefaultFeedbackScores());
+      setFeedbackRationales(createDefaultFeedbackRationales());
+      setLiveTranscription("");
+      setOodaReasoning("");
       setSessionSummary("");
       setSessionAssumptions([]);
       setSessionMissingInformation([]);
@@ -909,7 +1107,7 @@ export default function MiaAudioTestBenchPage() {
       return;
     }
 
-    if (status === "THINKING") {
+    if (status === "THINKING" || status === "WAITING_FOR_AUDIO") {
       if (!pollingRef.current) {
         startPolling(sessionId);
       }
@@ -1041,15 +1239,37 @@ export default function MiaAudioTestBenchPage() {
               </label>
 
               {isAudioMode ? (
-                <label className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-2 text-sm">
-                  <span>Enable Guidance</span>
-                  <input
-                    type="checkbox"
-                    checked={enableGuidance}
-                    onChange={(event) => setEnableGuidance(event.target.checked)}
-                    className="h-4 w-4 accent-indigo-600"
-                  />
-                </label>
+                <>
+                  <label className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-2 text-sm">
+                    <span>Enable Guidance</span>
+                    <input
+                      type="checkbox"
+                      checked={enableGuidance}
+                      onChange={(event) => setEnableGuidance(event.target.checked)}
+                      className="h-4 w-4 accent-indigo-600"
+                    />
+                  </label>
+                  {enableGuidance && (
+                    <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
+                      Guidance Interval (seconds)
+                      <div className="mt-1 flex items-center gap-2">
+                        <input
+                          type="range"
+                          min={5}
+                          max={60}
+                          step={5}
+                          value={guidanceIntervalSeconds}
+                          onChange={(event) => setGuidanceIntervalSeconds(Number(event.target.value))}
+                          className="flex-1 accent-indigo-600"
+                        />
+                        <span className="w-8 text-center text-sm font-semibold text-indigo-700">
+                          {guidanceIntervalSeconds}s
+                        </span>
+                      </div>
+                      <p className="mt-0.5 text-slate-400">Lower = faster updates, higher LLM cost. Default: 10s</p>
+                    </label>
+                  )}
+                </>
               ) : null}
 
               <div className="rounded-md border border-slate-200 px-3 py-3">
@@ -1115,6 +1335,68 @@ export default function MiaAudioTestBenchPage() {
               </div>
 
               {isAudioMode ? (
+                <div className="rounded-md border border-slate-200 px-3 py-3 space-y-2">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Send Audio File</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="block text-xs text-slate-500">
+                      Chunk size (KB)
+                      <input
+                        type="number"
+                        min={10}
+                        max={2048}
+                        value={fileChunkSizeKb}
+                        onChange={(e) => setFileChunkSizeKb(Number(e.target.value))}
+                        disabled={isSendingFile}
+                        className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm outline-none ring-indigo-500 focus:ring disabled:opacity-50"
+                      />
+                    </label>
+                    <label className="block text-xs text-slate-500">
+                      Delay between chunks (ms)
+                      <input
+                        type="number"
+                        min={500}
+                        max={60000}
+                        step={500}
+                        value={fileChunkDelayMs}
+                        onChange={(e) => setFileChunkDelayMs(Number(e.target.value))}
+                        disabled={isSendingFile}
+                        className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm outline-none ring-indigo-500 focus:ring disabled:opacity-50"
+                      />
+                    </label>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="audio/*,.webm,.wav,.mp3,.ogg"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) void sendAudioFile(file);
+                      e.target.value = "";
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={!hasSession || isSendingFile || isRecording || status !== "WAITING_FOR_AUDIO"}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isSendingFile ? <LoaderCircle size={14} className="animate-spin" /> : <Upload size={14} />}
+                    {isSendingFile ? `Sending... ${fileSendProgress}` : "Pick & Send Audio File"}
+                  </button>
+                  {!hasSession && (
+                    <p className="text-xs text-amber-600">Start a session first.</p>
+                  )}
+                  {hasSession && status !== "WAITING_FOR_AUDIO" && !isSendingFile && (
+                    <p className="text-xs text-amber-600">Session must be in WAITING_FOR_AUDIO status. Current: {status}</p>
+                  )}
+                  {isSendingFile && (
+                    <p className="text-xs text-slate-500">Next chunk in {fileChunkDelayMs / 1000}s — feedback updates between chunks.</p>
+                  )}
+                </div>
+              ) : null}
+
+              {isAudioMode ? (
                 <label className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-2 text-sm">
                   <span>Finalize on stop (send final chunk)</span>
                   <input
@@ -1135,6 +1417,14 @@ export default function MiaAudioTestBenchPage() {
                 <p className="text-xs text-slate-500">Session ID: {sessionId || "Not started"}</p>
               </div>
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={clearSession}
+                  disabled={isRecording || isSendingFile}
+                  className="rounded-md border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  New Session
+                </button>
                 <Link
                   href={hasSession ? `/mia-audio-test-bench/care-plan/${sessionId}` : "/mia-audio-test-bench"}
                   className="rounded-md border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
@@ -1157,7 +1447,61 @@ export default function MiaAudioTestBenchPage() {
 
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               <div className="rounded-lg border bg-slate-50 p-4">
-                <h3 className="mb-2 text-sm font-semibold">Telemetry</h3>
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <h3 className="text-sm font-semibold">Telemetry</h3>
+                  {elapsedMs !== null && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
+                      <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500" />
+                      Waiting… {(elapsedMs / 1000).toFixed(1)}s
+                    </span>
+                  )}
+                  {lastResponseMs !== null && elapsedMs === null && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-800">
+                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500" />
+                      End-to-end {(lastResponseMs / 1000).toFixed(1)}s
+                    </span>
+                  )}
+                </div>
+                {(lastTranscriptionMs !== null || lastLlmMs !== null) && (
+                  <div className="mb-2 flex flex-wrap gap-2 text-xs">
+                    {lastTranscriptionMs !== null && (
+                      <span className="inline-flex items-center gap-1 rounded bg-blue-50 px-2 py-0.5 font-mono text-blue-700">
+                        transcription {(lastTranscriptionMs / 1000).toFixed(2)}s
+                      </span>
+                    )}
+                    {lastLlmMs !== null && (
+                      <span className="inline-flex items-center gap-1 rounded bg-purple-50 px-2 py-0.5 font-mono text-purple-700">
+                        llm {(lastLlmMs / 1000).toFixed(2)}s
+                      </span>
+                    )}
+                    {lastTranscriptionMs !== null && lastLlmMs !== null && (
+                      <span className="inline-flex items-center gap-1 rounded bg-slate-100 px-2 py-0.5 font-mono text-slate-600">
+                        interval ~{guidanceIntervalSeconds}s
+                      </span>
+                    )}
+                  </div>
+                )}
+                {(observeScore !== null || orientScore !== null || decideScore !== null) && (
+                  <div className="mb-2 flex flex-wrap gap-2 text-xs">
+                    {(["O", "Ri", "D"] as const).map((label, i) => {
+                      const score = [observeScore, orientScore, decideScore][i];
+                      const fullLabel = ["Observe", "Orient", "Decide"][i];
+                      if (score === null) return null;
+                      const colour =
+                        score >= 4 ? "bg-green-50 text-green-700" :
+                        score === 3 ? "bg-yellow-50 text-yellow-700" :
+                        "bg-red-50 text-red-700";
+                      const dots = Array.from({ length: 5 }, (_, j) => (
+                        <span key={j} className={`inline-block h-1.5 w-1.5 rounded-full ${j < score ? (score >= 4 ? "bg-green-500" : score === 3 ? "bg-yellow-400" : "bg-red-400") : "bg-slate-200"}`} />
+                      ));
+                      return (
+                        <span key={label} title={`${fullLabel}: ${score}/5`} className={`inline-flex items-center gap-1 rounded px-2 py-0.5 font-mono ${colour}`}>
+                          {label} {dots} {score}/5
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
                 <ul className="space-y-1 text-sm text-slate-700">
                   <li>last_sequence_processed: {lastSequenceProcessed ?? "—"}</li>
                   <li>last_modified_date_utc: {lastModifiedDateUtc || "—"}</li>
@@ -1256,9 +1600,10 @@ export default function MiaAudioTestBenchPage() {
 
             <div className="mt-4 rounded-lg border bg-slate-50 p-4">
               <h3 className="mb-4 text-sm font-semibold">Feedback Scores</h3>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {SCORE_FIELDS.map((field) => {
                   const value = feedbackScores[field.key];
+                  const rationale = feedbackRationales[field.rationaleKey];
                   const widthPercent =
                     value === null ? 0 : Math.max(0, Math.min(100, (value / SCORE_MAX) * 100));
 
@@ -1274,11 +1619,37 @@ export default function MiaAudioTestBenchPage() {
                           style={{ width: `${value === null ? 0 : widthPercent}%` }}
                         />
                       </div>
+                      {rationale ? (
+                        <p className="mt-1 text-xs text-slate-500 italic">{rationale}</p>
+                      ) : null}
                     </div>
                   );
                 })}
               </div>
             </div>
+
+            {(liveTranscription || oodaReasoning) ? (
+              <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                {liveTranscription ? (
+                  <div className="rounded-lg border bg-slate-50 p-4">
+                    <h3 className="mb-1 text-sm font-semibold">Live Transcription</h3>
+                    <p className="mb-2 text-xs text-slate-500">Accumulated raw transcript (updates each chunk)</p>
+                    <div className="max-h-64 overflow-y-auto rounded-md border border-slate-200 bg-white p-3 text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
+                      {liveTranscription}
+                    </div>
+                  </div>
+                ) : null}
+                {oodaReasoning ? (
+                  <div className="rounded-lg border bg-slate-50 p-4">
+                    <h3 className="mb-1 text-sm font-semibold">OODA Reasoning</h3>
+                    <p className="mb-2 text-xs text-slate-500">LLM chain-of-thought before scoring (last pass)</p>
+                    <div className="max-h-64 overflow-y-auto rounded-md border border-slate-200 bg-white p-3 text-sm text-slate-700 leading-relaxed whitespace-pre-wrap font-mono">
+                      {oodaReasoning}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </section>
 
