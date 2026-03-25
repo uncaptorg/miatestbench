@@ -106,6 +106,13 @@ def _safe_filename(value: str, fallback: str) -> str:
     return clean or fallback
 
 
+def _count_questions(question_set: dict[str, Any]) -> int:
+    questions = question_set.get("questions", [])
+    if not isinstance(questions, list):
+        return 0
+    return len(questions)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate markdown by domain/question-set from ai_static_context JSON."
@@ -143,6 +150,7 @@ def main() -> int:
     seen_ids: set[str] = set()
     file_count = 0
     skipped = 0
+    question_counts: list[int] = []
 
     for index, record in enumerate(records, start=1):
         q_set = record["question_set"]
@@ -164,9 +172,18 @@ def main() -> int:
             question_set=q_set,
         )
         file_path.write_text(markdown, encoding="utf-8")
+        question_counts.append(_count_questions(q_set))
         file_count += 1
 
     print(f"Generated {file_count} unique markdown files in: {args.output_dir}")
+    if question_counts:
+        max_count = max(question_counts)
+        min_count = min(question_counts)
+        avg_count = sum(question_counts) / len(question_counts)
+        print(
+            "Question stats per generated set: "
+            f"max={max_count}, min={min_count}, average={avg_count:.2f}"
+        )
     if skipped:
         print(f"Skipped {skipped} duplicate question set(s).")
     return 0

@@ -130,9 +130,9 @@ const PROXY_BASE_PATH = "/api/mia";
 
 const DEFAULT_CLIENT_DEMOGRAPHICS = {
   age: 30,
-  gender: "unknown",
-  genderAtBirth: "unknown",
-  sexualIdentity: "unknown",
+  gender: null,
+  genderAtBirth: null,
+  sexualIdentity: null,
   state: "NSW",
   postcode: "2000",
   country: "AU",
