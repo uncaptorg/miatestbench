@@ -128,15 +128,188 @@ const POLLING_INTERVAL_MS = 3000;
 const SESSION_UPDATE_MAX_POLLS = 20;
 const PROXY_BASE_PATH = "/api/mia";
 
+type OptionalDemographicsInput = {
+  gender: string;
+  gender_at_birth: string;
+  sexual_identity: string;
+  postcode: string;
+  state: string;
+  country: string;
+  relationship_status: string;
+  living_circumstances: string;
+  support_level: string;
+  has_supportive_adult: "" | "true" | "false";
+  employed: "" | "true" | "false";
+  employment_status: string;
+  currently_studying: "" | "true" | "false";
+  has_disability: "" | "true" | "false";
+  nature_of_disability: string;
+  assistance_needed: string;
+  prescription_medication: string;
+  previous_counseling_types: string;
+};
+
+type OptionalDemographicsFieldMeta = {
+  key: keyof OptionalDemographicsInput;
+  label: string;
+  input: "text" | "boolean";
+  options?: string[];
+  helperText?: string;
+};
+
+const GENDER_OPTIONS = [
+  "male",
+  "female",
+  "transgender",
+  "transgender_female",
+  "transgender_male",
+  "non_binary",
+  "gender_queer",
+  "gender_fluid",
+  "gender_neutral",
+  "androgynous",
+  "two_spirit",
+  "neither_gender_identity",
+  "not_sure",
+  "prefer_not_to_answer",
+  "other",
+];
+
+const GENDER_AT_BIRTH_OPTIONS = ["male_at_birth", "female_at_birth", "intersex", "prefer_not_to_answer"];
+
+const SEXUAL_IDENTITY_OPTIONS = [
+  "straight",
+  "gay",
+  "lesbian",
+  "bisexual",
+  "asexual",
+  "queer",
+  "pansexual",
+  "demisexual",
+  "two_spirit",
+  "not_sure",
+  "questioning",
+  "prefer_not_to_answer",
+  "other",
+];
+
+const AUSTRALIAN_STATE_OPTIONS = ["NSW", "VIC", "QLD", "SA", "WA", "TAS", "ACT", "NT"];
+
+const COUNTRY_OPTIONS = ["AU"];
+
+const RELATIONSHIP_STATUS_OPTIONS = ["single", "living_with", "not_living_with", "separated", "divorced", "widowed"];
+
+const LIVING_CIRCUMSTANCES_OPTIONS = [
+  "own",
+  "family",
+  "shared",
+  "retirement",
+  "nursing",
+  "homeless",
+  "other_living_circumstances",
+];
+
+const SUPPORT_LEVEL_OPTIONS = ["independent", "partially_supported", "dependent"];
+
+const EMPLOYMENT_STATUS_OPTIONS = ["full_time", "part_time_regular", "part_time_irregular", "casual", "other"];
+
+const NATURE_OF_DISABILITY_OPTIONS = [
+  "pain_related",
+  "flexibility",
+  "mobility",
+  "mental_health_related",
+  "seeing",
+  "hearing",
+  "learning",
+  "memory",
+  "developmental",
+  "dexterity_agility",
+  "unknown",
+  "prefer_not_to_answer",
+  "other",
+];
+
+const ASSISTANCE_NEEDED_OPTIONS = ["needed", "not_needed", "already_obtained"];
+
+const PREVIOUS_COUNSELING_TYPE_OPTIONS = [
+  "general_counseling",
+  "cbt",
+  "trauma_cbt",
+  "emdr",
+  "play_art_therapy",
+  "cognitive_processing_therapy",
+  "dialectical_behavioural_therapy",
+  "narrative_therapy",
+  "system_family_therapy",
+  "not_sure",
+  "other",
+];
+
+const EMPTY_OPTIONAL_DEMOGRAPHICS: OptionalDemographicsInput = {
+  gender: "",
+  gender_at_birth: "",
+  sexual_identity: "",
+  postcode: "",
+  state: "",
+  country: "",
+  relationship_status: "",
+  living_circumstances: "",
+  support_level: "",
+  has_supportive_adult: "",
+  employed: "",
+  employment_status: "",
+  currently_studying: "",
+  has_disability: "",
+  nature_of_disability: "",
+  assistance_needed: "",
+  prescription_medication: "",
+  previous_counseling_types: "",
+};
+
+const OPTIONAL_DEMOGRAPHICS_FIELDS: OptionalDemographicsFieldMeta[] = [
+  { key: "gender", label: "Gender", input: "text", options: GENDER_OPTIONS },
+  { key: "gender_at_birth", label: "Gender At Birth", input: "text", options: GENDER_AT_BIRTH_OPTIONS },
+  { key: "sexual_identity", label: "Sexual Identity", input: "text", options: SEXUAL_IDENTITY_OPTIONS },
+  { key: "postcode", label: "Postcode", input: "text" },
+  { key: "state", label: "State", input: "text", options: AUSTRALIAN_STATE_OPTIONS },
+  { key: "country", label: "Country", input: "text", options: COUNTRY_OPTIONS },
+  {
+    key: "relationship_status",
+    label: "Relationship Status",
+    input: "text",
+    options: RELATIONSHIP_STATUS_OPTIONS,
+  },
+  {
+    key: "living_circumstances",
+    label: "Living Circumstances",
+    input: "text",
+    options: LIVING_CIRCUMSTANCES_OPTIONS,
+  },
+  { key: "support_level", label: "Support Level", input: "text", options: SUPPORT_LEVEL_OPTIONS },
+  { key: "has_supportive_adult", label: "Has Supportive Adult", input: "boolean" },
+  { key: "employed", label: "Employed", input: "boolean" },
+  { key: "employment_status", label: "Employment Status", input: "text", options: EMPLOYMENT_STATUS_OPTIONS },
+  { key: "currently_studying", label: "Currently Studying", input: "boolean" },
+  { key: "has_disability", label: "Has Disability", input: "boolean" },
+  {
+    key: "nature_of_disability",
+    label: "Nature Of Disability",
+    input: "text",
+    options: NATURE_OF_DISABILITY_OPTIONS,
+  },
+  { key: "assistance_needed", label: "Assistance Needed", input: "text", options: ASSISTANCE_NEEDED_OPTIONS },
+  { key: "prescription_medication", label: "Prescription Medication", input: "text" },
+  {
+    key: "previous_counseling_types",
+    label: "Previous Counseling Types",
+    input: "text",
+    options: PREVIOUS_COUNSELING_TYPE_OPTIONS,
+    helperText: "Select one counseling type here. Use JSON override for multiple values.",
+  },
+];
+
 const DEFAULT_CLIENT_DEMOGRAPHICS = {
   age: 30,
-  gender: null,
-  genderAtBirth: null,
-  sexualIdentity: null,
-  state: "NSW",
-  postcode: "2000",
-  country: "AU",
-  context: "",
 };
 
 const sleep = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -183,27 +356,25 @@ export default function MiaAudioTestBenchPage() {
   const [selectedEnvironment, setSelectedEnvironment] = useState<MiaEnvironment>("local");
   const [sessionMode, setSessionMode] = useState<SessionMode>("audio");
   const [clientAge, setClientAge] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.age);
-  const [clientGender, setClientGender] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.gender);
-  const [clientGenderAtBirth, setClientGenderAtBirth] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.genderAtBirth);
-  const [clientSexualIdentity, setClientSexualIdentity] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.sexualIdentity);
-  const [clientState, setClientState] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.state);
-  const [clientPostcode, setClientPostcode] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.postcode);
-  const [clientCountry, setClientCountry] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.country);
+  const [clientOptionalDemographics, setClientOptionalDemographics] = useState<OptionalDemographicsInput>(
+    EMPTY_OPTIONAL_DEMOGRAPHICS,
+  );
+  const [clientAssessmentsJson, setClientAssessmentsJson] = useState("");
+  const [clientEventsJson, setClientEventsJson] = useState("");
+  const [clientNotesJson, setClientNotesJson] = useState("");
+  const [clientGoalsJson, setClientGoalsJson] = useState("");
+  const [clientContextOverrideJson, setClientContextOverrideJson] = useState("");
   const [enableGuidance, setEnableGuidance] = useState(true);
   const [guidanceIntervalSeconds, setGuidanceIntervalSeconds] = useState(10);
-  const [clientContext, setClientContext] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.context);
   const [draftClientAge, setDraftClientAge] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.age);
-  const [draftClientGender, setDraftClientGender] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.gender);
-  const [draftClientGenderAtBirth, setDraftClientGenderAtBirth] = useState(
-    DEFAULT_CLIENT_DEMOGRAPHICS.genderAtBirth,
+  const [draftClientOptionalDemographics, setDraftClientOptionalDemographics] = useState<OptionalDemographicsInput>(
+    EMPTY_OPTIONAL_DEMOGRAPHICS,
   );
-  const [draftClientSexualIdentity, setDraftClientSexualIdentity] = useState(
-    DEFAULT_CLIENT_DEMOGRAPHICS.sexualIdentity,
-  );
-  const [draftClientState, setDraftClientState] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.state);
-  const [draftClientPostcode, setDraftClientPostcode] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.postcode);
-  const [draftClientCountry, setDraftClientCountry] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.country);
-  const [draftClientContext, setDraftClientContext] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.context);
+  const [draftClientAssessmentsJson, setDraftClientAssessmentsJson] = useState("");
+  const [draftClientEventsJson, setDraftClientEventsJson] = useState("");
+  const [draftClientNotesJson, setDraftClientNotesJson] = useState("");
+  const [draftClientGoalsJson, setDraftClientGoalsJson] = useState("");
+  const [draftClientContextOverrideJson, setDraftClientContextOverrideJson] = useState("");
   const [clinicalNotes, setClinicalNotes] = useState("");
   const [isClientContextModalOpen, setIsClientContextModalOpen] = useState(false);
   const [sessionId, setSessionId] = useState("");
@@ -257,6 +428,15 @@ export default function MiaAudioTestBenchPage() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const hasSession = sessionId.trim().length > 0;
+  const selectedOptionalDemographicsCount = useMemo(
+    () =>
+      OPTIONAL_DEMOGRAPHICS_FIELDS.reduce((count, field) => {
+        const value = clientOptionalDemographics[field.key];
+        return value ? count + 1 : count;
+      }, 0),
+    [clientOptionalDemographics],
+  );
+  const hasClientContextOverride = clientContextOverrideJson.trim().length > 0;
 
   const clearSession = () => {
     stopPolling();
@@ -348,13 +528,12 @@ export default function MiaAudioTestBenchPage() {
 
   const openClientContextModal = () => {
     setDraftClientAge(clientAge);
-    setDraftClientGender(clientGender);
-    setDraftClientGenderAtBirth(clientGenderAtBirth);
-    setDraftClientSexualIdentity(clientSexualIdentity);
-    setDraftClientState(clientState);
-    setDraftClientPostcode(clientPostcode);
-    setDraftClientCountry(clientCountry);
-    setDraftClientContext(clientContext);
+    setDraftClientOptionalDemographics(clientOptionalDemographics);
+    setDraftClientAssessmentsJson(clientAssessmentsJson);
+    setDraftClientEventsJson(clientEventsJson);
+    setDraftClientNotesJson(clientNotesJson);
+    setDraftClientGoalsJson(clientGoalsJson);
+    setDraftClientContextOverrideJson(clientContextOverrideJson);
     setIsClientContextModalOpen(true);
   };
 
@@ -364,13 +543,12 @@ export default function MiaAudioTestBenchPage() {
 
   const saveClientContext = () => {
     setClientAge(Number.isFinite(draftClientAge) ? Math.max(0, draftClientAge) : 0);
-    setClientGender(draftClientGender.trim());
-    setClientGenderAtBirth(draftClientGenderAtBirth.trim());
-    setClientSexualIdentity(draftClientSexualIdentity.trim());
-    setClientState(draftClientState.trim());
-    setClientPostcode(draftClientPostcode.trim());
-    setClientCountry(draftClientCountry.trim());
-    setClientContext(draftClientContext.trim());
+    setClientOptionalDemographics(draftClientOptionalDemographics);
+    setClientAssessmentsJson(draftClientAssessmentsJson.trim());
+    setClientEventsJson(draftClientEventsJson.trim());
+    setClientNotesJson(draftClientNotesJson.trim());
+    setClientGoalsJson(draftClientGoalsJson.trim());
+    setClientContextOverrideJson(draftClientContextOverrideJson.trim());
     setIsClientContextModalOpen(false);
   };
 
@@ -803,28 +981,107 @@ export default function MiaAudioTestBenchPage() {
         throw new Error("Text mode requires clinical notes.");
       }
 
-      const normalizedAge = Number.isFinite(clientAge) ? Math.max(0, clientAge) : 0;
-      const normalizedGender = clientGender.trim();
-      const normalizedGenderAtBirth = clientGenderAtBirth.trim();
-      const normalizedSexualIdentity = clientSexualIdentity.trim();
-      const normalizedState = clientState.trim();
-      const normalizedPostcode = clientPostcode.trim();
-      const normalizedCountry = clientCountry.trim();
-      const normalizedClientContext = clientContext.trim();
+      const normalizedAge = Number.isFinite(clientAge) ? Math.trunc(clientAge) : Number.NaN;
       const normalizedClinicalNotes = clinicalNotes.trim();
+      const normalizedContextOverride = clientContextOverrideJson.trim();
 
-      const hasRequiredDemographics =
-        normalizedAge >= 0 &&
-        Boolean(normalizedGender) &&
-        Boolean(normalizedGenderAtBirth) &&
-        Boolean(normalizedSexualIdentity) &&
-        Boolean(normalizedPostcode) &&
-        Boolean(normalizedState);
-
-      if (!hasRequiredDemographics) {
+      if (!Number.isFinite(normalizedAge) || normalizedAge < 5 || normalizedAge > 120) {
         throw new Error(
-          "Client context is required. Please complete Age, Gender, Gender At Birth, Sexual Identity, State, and Postcode in the Client Context modal.",
+          "Client context requires a valid demographics.age value between 5 and 120 in the Client Context modal.",
         );
+      }
+
+      const parseOptionalArrayJson = (fieldLabel: string, value: string, maxLength?: number) => {
+        const normalizedValue = value.trim();
+        if (!normalizedValue) {
+          return undefined;
+        }
+
+        let parsedValue: unknown;
+        try {
+          parsedValue = JSON.parse(normalizedValue);
+        } catch {
+          throw new Error(`${fieldLabel} must be valid JSON.`);
+        }
+
+        if (!Array.isArray(parsedValue)) {
+          throw new Error(`${fieldLabel} must be a JSON array.`);
+        }
+
+        if (typeof maxLength === "number" && parsedValue.length > maxLength) {
+          throw new Error(`${fieldLabel} exceeds max length ${maxLength}.`);
+        }
+
+        return parsedValue;
+      };
+
+      let clientContextPayload: Record<string, unknown>;
+
+      if (normalizedContextOverride) {
+        let parsedOverride: unknown;
+        try {
+          parsedOverride = JSON.parse(normalizedContextOverride);
+        } catch {
+          throw new Error("Client context override must be valid JSON.");
+        }
+
+        if (!parsedOverride || typeof parsedOverride !== "object" || Array.isArray(parsedOverride)) {
+          throw new Error("Client context override must be a JSON object.");
+        }
+
+        clientContextPayload = parsedOverride as Record<string, unknown>;
+      } else {
+        const demographics: Record<string, unknown> = {
+          age: normalizedAge,
+        };
+
+        for (const field of OPTIONAL_DEMOGRAPHICS_FIELDS) {
+          const fieldValue = clientOptionalDemographics[field.key];
+
+          if (field.input === "boolean") {
+            if (fieldValue === "true") {
+              demographics[field.key] = true;
+            }
+            if (fieldValue === "false") {
+              demographics[field.key] = false;
+            }
+            continue;
+          }
+
+          const normalizedValue = fieldValue.trim();
+          if (!normalizedValue) {
+            continue;
+          }
+
+          if (field.key === "previous_counseling_types") {
+            const counselingTypes = normalizedValue.includes(",")
+              ? normalizedValue
+                  .split(",")
+                  .map((value) => value.trim())
+                  .filter(Boolean)
+              : [normalizedValue];
+
+            if (counselingTypes.length > 0) {
+              demographics[field.key] = counselingTypes;
+            }
+            continue;
+          }
+
+          demographics[field.key] = normalizedValue;
+        }
+
+        const assessments = parseOptionalArrayJson("Client context assessments", clientAssessmentsJson, 1);
+        const events = parseOptionalArrayJson("Client context events", clientEventsJson, 10);
+        const notes = parseOptionalArrayJson("Client context notes", clientNotesJson, 10);
+        const goals = parseOptionalArrayJson("Client context goals", clientGoalsJson, 10);
+
+        clientContextPayload = {
+          demographics,
+          ...(assessments ? { assessments } : {}),
+          ...(events ? { events } : {}),
+          ...(notes ? { notes } : {}),
+          ...(goals ? { goals } : {}),
+        };
       }
 
       const payload: {
@@ -832,42 +1089,12 @@ export default function MiaAudioTestBenchPage() {
         enable_guidance: boolean;
         guidance_interval_seconds?: number;
         clinical_notes?: string;
-        client_context: {
-          demographics: {
-            age: number;
-            gender: string;
-            gender_at_birth: string;
-            sexual_identity: string;
-            postcode: string;
-            state: string;
-            country?: string;
-          };
-          notes?: Array<{ text: string }>;
-        };
+        client_context: Record<string, unknown>;
       } = {
         mode: sessionMode,
         enable_guidance: isAudioMode ? enableGuidance : false,
         ...(isAudioMode && enableGuidance ? { guidance_interval_seconds: guidanceIntervalSeconds } : {}),
-        client_context: {
-          demographics: {
-            age: normalizedAge,
-            gender: normalizedGender,
-            gender_at_birth: normalizedGenderAtBirth,
-            sexual_identity: normalizedSexualIdentity,
-            postcode: normalizedPostcode,
-            state: normalizedState,
-            ...(normalizedCountry ? { country: normalizedCountry } : {}),
-          },
-          ...(normalizedClientContext
-            ? {
-                notes: [
-                  {
-                    text: normalizedClientContext,
-                  },
-                ],
-              }
-            : {}),
-        },
+        client_context: clientContextPayload,
       };
 
       if (normalizedClinicalNotes) {
@@ -1276,16 +1503,17 @@ export default function MiaAudioTestBenchPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Client Context</p>
-                    <p className="mt-1 text-sm text-slate-600">Required. Configure all fields via modal.</p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      Required: demographics.age. Optional fields are only sent when populated.
+                    </p>
                     <ul className="mt-2 space-y-1 text-sm text-slate-700">
                       <li>Age: {clientAge}</li>
-                      <li>Gender: {clientGender || "—"}</li>
-                      <li>Gender At Birth: {clientGenderAtBirth || "—"}</li>
-                      <li>Sexual Identity: {clientSexualIdentity || "—"}</li>
-                      <li>
-                        Location: {clientState || "—"}, {clientPostcode || "—"}, {clientCountry || "—"}
-                      </li>
-                      <li>Additional Context: {clientContext || "None"}</li>
+                      <li>Optional Demographics Set: {selectedOptionalDemographicsCount}</li>
+                      <li>Assessments JSON: {clientAssessmentsJson ? "Included" : "Not set"}</li>
+                      <li>Events JSON: {clientEventsJson ? "Included" : "Not set"}</li>
+                      <li>Notes JSON: {clientNotesJson ? "Included" : "Not set"}</li>
+                      <li>Goals JSON: {clientGoalsJson ? "Included" : "Not set"}</li>
+                      <li>JSON Override: {hasClientContextOverride ? "Enabled" : "Disabled"}</li>
                     </ul>
                   </div>
                   <button
@@ -1430,6 +1658,12 @@ export default function MiaAudioTestBenchPage() {
                   className="rounded-md border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
                 >
                   Care Plans
+                </Link>
+                <Link
+                  href={hasSession ? `/mia-audio-test-bench/questionnaires/${sessionId}` : "/mia-audio-test-bench"}
+                  className="rounded-md border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                >
+                  Questionnaires
                 </Link>
                 <button
                   type="button"
@@ -1700,19 +1934,84 @@ export default function MiaAudioTestBenchPage() {
         </section>
 
         {errorMessage ? (
-          <div className="rounded-md border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            {errorMessage}
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <div className="mx-4 w-full max-w-lg rounded-xl border border-rose-200 bg-white shadow-xl">
+              <div className="flex items-center gap-2 border-b border-rose-100 bg-rose-50 px-5 py-3 rounded-t-xl">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                <h2 className="text-sm font-semibold text-rose-800">Error</h2>
+              </div>
+              <div className="px-5 py-4 max-h-[60vh] overflow-y-auto">
+                {(() => {
+                  try {
+                    const parsed = JSON.parse(errorMessage);
+                    if (parsed?.detail && Array.isArray(parsed.detail)) {
+                      return (
+                        <div className="space-y-3">
+                          <p className="text-sm font-medium text-slate-700">
+                            {parsed.detail.length} validation error{parsed.detail.length > 1 ? "s" : ""}
+                          </p>
+                          <ul className="space-y-2">
+                            {parsed.detail.map((err: { type?: string; loc?: (string | number)[]; msg?: string; input?: unknown }, idx: number) => (
+                              <li key={idx} className="rounded-md border border-rose-100 bg-rose-50/50 p-3">
+                                <div className="flex items-start gap-2">
+                                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-rose-200 text-xs font-bold text-rose-700">
+                                    {idx + 1}
+                                  </span>
+                                  <div className="min-w-0">
+                                    <p className="text-sm font-medium text-rose-800">{err.msg || "Unknown error"}</p>
+                                    {err.loc && (
+                                      <p className="mt-1 text-xs text-slate-600">
+                                        <span className="font-medium">Location:</span>{" "}
+                                        <code className="rounded bg-slate-200 px-1 py-0.5 text-xs">{err.loc.join(" → ")}</code>
+                                      </p>
+                                    )}
+                                    {err.type && (
+                                      <p className="mt-0.5 text-xs text-slate-500">
+                                        <span className="font-medium">Type:</span> {err.type}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    }
+                    if (typeof parsed?.detail === "string") {
+                      return <p className="text-sm text-slate-800">{parsed.detail}</p>;
+                    }
+                  } catch {
+                    // not JSON — fall through to raw display
+                  }
+                  return (
+                    <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-md border bg-slate-50 p-3 text-xs text-slate-800 font-mono">
+                      {errorMessage}
+                    </pre>
+                  );
+                })()}
+              </div>
+              <div className="flex justify-end border-t px-5 py-3">
+                <button
+                  type="button"
+                  onClick={() => setErrorMessage("")}
+                  className="rounded-md bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
           </div>
         ) : null}
 
         {isClientContextModalOpen ? (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4">
-            <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="w-full max-w-5xl rounded-2xl bg-white p-6 shadow-2xl">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h2 className="text-lg font-semibold text-slate-900">Client Context</h2>
                   <p className="mt-1 text-sm text-slate-600">
-                    Configure structured demographics and optional context notes for this session.
+                    Required-only prefill is applied. Optional fields are sent only when populated.
                   </p>
                 </div>
                 <button
@@ -1724,101 +2023,153 @@ export default function MiaAudioTestBenchPage() {
                 </button>
               </div>
 
-              <div className="mt-5 grid grid-cols-2 gap-3">
-                <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
-                  Age *
-                  <input
-                    type="number"
-                    min={0}
-                    value={draftClientAge}
-                    onChange={(event) => setDraftClientAge(Number(event.target.value))}
-                    className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
-                  />
-                </label>
+              <div className="mt-5 max-h-[72vh] space-y-5 overflow-y-auto pr-1">
+                <div className="grid grid-cols-3 gap-3 rounded-md border border-slate-200 p-3">
+                  <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
+                    Age *
+                    <input
+                      type="number"
+                      min={5}
+                      max={120}
+                      value={draftClientAge}
+                      onChange={(event) => setDraftClientAge(Number(event.target.value))}
+                      className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+                    />
+                  </label>
+                  <p className="col-span-2 self-end text-xs text-slate-500">
+                    Required by validation. Every other field in this modal is optional.
+                  </p>
+                </div>
+
+                <div className="rounded-md border border-slate-200 p-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Optional Demographics</p>
+                  <p className="mt-1 text-xs text-slate-500">Set any fields you want to include in demographics.</p>
+                  <div className="mt-3 grid grid-cols-3 gap-3">
+                    {OPTIONAL_DEMOGRAPHICS_FIELDS.map((field) => (
+                      <label key={field.key} className="block text-xs font-medium uppercase tracking-wide text-slate-500">
+                        {field.label}
+                        {field.input === "boolean" ? (
+                          <select
+                            value={draftClientOptionalDemographics[field.key]}
+                            onChange={(event) =>
+                              setDraftClientOptionalDemographics((previous) => ({
+                                ...previous,
+                                [field.key]: event.target.value as OptionalDemographicsInput[typeof field.key],
+                              }))
+                            }
+                            className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm normal-case outline-none ring-indigo-500 focus:ring"
+                          >
+                            <option value="">Not set</option>
+                            <option value="true">true</option>
+                            <option value="false">false</option>
+                          </select>
+                        ) : field.options ? (
+                          <select
+                            value={draftClientOptionalDemographics[field.key]}
+                            onChange={(event) =>
+                              setDraftClientOptionalDemographics((previous) => ({
+                                ...previous,
+                                [field.key]: event.target.value,
+                              }))
+                            }
+                            className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm normal-case outline-none ring-indigo-500 focus:ring"
+                          >
+                            <option value="">Not set</option>
+                            {field.options.map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            value={draftClientOptionalDemographics[field.key]}
+                            onChange={(event) =>
+                              setDraftClientOptionalDemographics((previous) => ({
+                                ...previous,
+                                [field.key]: event.target.value,
+                              }))
+                            }
+                            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm normal-case outline-none ring-indigo-500 focus:ring"
+                          />
+                        )}
+                        {field.helperText ? <span className="mt-1 block text-[11px] text-slate-400">{field.helperText}</span> : null}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
+                    Assessments JSON (array)
+                    <textarea
+                      value={draftClientAssessmentsJson}
+                      onChange={(event) => setDraftClientAssessmentsJson(event.target.value)}
+                      placeholder='[ { "completed_at": "2026-03-01T09:00:00Z", "questionnaire": { ... } } ]'
+                      className="mt-2 min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-xs outline-none ring-indigo-500 focus:ring"
+                    />
+                  </label>
+
+                  <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
+                    Events JSON (array)
+                    <textarea
+                      value={draftClientEventsJson}
+                      onChange={(event) => setDraftClientEventsJson(event.target.value)}
+                      placeholder='[ { "title": "...", "created_at": "2026-03-10T14:00:00Z" } ]'
+                      className="mt-2 min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-xs outline-none ring-indigo-500 focus:ring"
+                    />
+                  </label>
+
+                  <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
+                    Notes JSON (array)
+                    <textarea
+                      value={draftClientNotesJson}
+                      onChange={(event) => setDraftClientNotesJson(event.target.value)}
+                      placeholder='[ { "text": "...", "occurred_at": "2026-03-10T14:30:00Z" } ]'
+                      className="mt-2 min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-xs outline-none ring-indigo-500 focus:ring"
+                    />
+                  </label>
+
+                  <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
+                    Goals JSON (array)
+                    <textarea
+                      value={draftClientGoalsJson}
+                      onChange={(event) => setDraftClientGoalsJson(event.target.value)}
+                      placeholder='[ { "title": "...", "status": "active", "actions": [] } ]'
+                      className="mt-2 min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-xs outline-none ring-indigo-500 focus:ring"
+                    />
+                  </label>
+                </div>
 
                 <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
-                  Gender *
-                  <input
-                    value={draftClientGender}
-                    onChange={(event) => setDraftClientGender(event.target.value)}
-                    className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+                  Client Context JSON Override (object)
+                  <textarea
+                    value={draftClientContextOverrideJson}
+                    onChange={(event) => setDraftClientContextOverrideJson(event.target.value)}
+                    placeholder='{"demographics":{"age":34},"notes":[]}'
+                    className="mt-2 min-h-40 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-xs outline-none ring-indigo-500 focus:ring"
                   />
-                </label>
-
-                <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
-                  Gender At Birth *
-                  <input
-                    value={draftClientGenderAtBirth}
-                    onChange={(event) => setDraftClientGenderAtBirth(event.target.value)}
-                    className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
-                  />
-                </label>
-
-                <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
-                  Sexual Identity *
-                  <input
-                    value={draftClientSexualIdentity}
-                    onChange={(event) => setDraftClientSexualIdentity(event.target.value)}
-                    className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
-                  />
-                </label>
-
-                <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
-                  State *
-                  <input
-                    value={draftClientState}
-                    onChange={(event) => setDraftClientState(event.target.value)}
-                    className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
-                  />
-                </label>
-
-                <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
-                  Postcode *
-                  <input
-                    value={draftClientPostcode}
-                    onChange={(event) => setDraftClientPostcode(event.target.value)}
-                    className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
-                  />
-                </label>
-
-                <label className="block text-xs font-medium uppercase tracking-wide text-slate-500 col-span-2">
-                  Country
-                  <input
-                    value={draftClientCountry}
-                    onChange={(event) => setDraftClientCountry(event.target.value)}
-                    className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
-                  />
+                  <span className="mt-1 block text-[11px] text-slate-400">
+                    When provided, this override replaces all selections above for client_context.
+                  </span>
                 </label>
               </div>
-
-              <label className="mt-5 block text-xs font-medium uppercase tracking-wide text-slate-500">
-                Additional Context Notes
-                <textarea
-                  value={draftClientContext}
-                  onChange={(event) => setDraftClientContext(event.target.value)}
-                  placeholder="Optional client details, background, or notes"
-                  className="mt-2 min-h-40 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
-                />
-              </label>
-
-              <p className="mt-3 text-xs text-slate-500">Fields marked with * are required.</p>
 
               <div className="mt-5 flex items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     setDraftClientAge(DEFAULT_CLIENT_DEMOGRAPHICS.age);
-                    setDraftClientGender(DEFAULT_CLIENT_DEMOGRAPHICS.gender);
-                    setDraftClientGenderAtBirth(DEFAULT_CLIENT_DEMOGRAPHICS.genderAtBirth);
-                    setDraftClientSexualIdentity(DEFAULT_CLIENT_DEMOGRAPHICS.sexualIdentity);
-                    setDraftClientState(DEFAULT_CLIENT_DEMOGRAPHICS.state);
-                    setDraftClientPostcode(DEFAULT_CLIENT_DEMOGRAPHICS.postcode);
-                    setDraftClientCountry(DEFAULT_CLIENT_DEMOGRAPHICS.country);
-                    setDraftClientContext(DEFAULT_CLIENT_DEMOGRAPHICS.context);
+                    setDraftClientOptionalDemographics(EMPTY_OPTIONAL_DEMOGRAPHICS);
+                    setDraftClientAssessmentsJson("");
+                    setDraftClientEventsJson("");
+                    setDraftClientNotesJson("");
+                    setDraftClientGoalsJson("");
+                    setDraftClientContextOverrideJson("");
                   }}
                   className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
                 >
-                  Reset Defaults
+                  Reset Required Only
                 </button>
                 <div className="flex items-center gap-3">
                   <button

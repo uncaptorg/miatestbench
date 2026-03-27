@@ -5,7 +5,7 @@ Input JSON is expected to include:
 - health_domains: [{id, label}, ...]
 - questionnaires: [{name, health_domain_id, question_sets: [...]}, ...]
 
-Each question set is rendered to its own file named by question_set.id.
+Each question set is rendered to its own file named by question_set.name.
 """
 
 from __future__ import annotations
@@ -96,13 +96,12 @@ def _render_question_set_markdown(
 
 
 def _safe_filename(value: str, fallback: str) -> str:
-    name = value.strip()
+    name = value.strip().lower()
     if not name:
         return fallback
 
-    # Replace path separators and reserved characters for cross-platform safety.
-    forbidden = '<>:"/\\|?*'
-    clean = "".join("_" if c in forbidden else c for c in name)
+    name = "_".join(name.split())
+    clean = "".join(c for c in name if c.isalnum() or c == "_")
     return clean or fallback
 
 
@@ -151,6 +150,7 @@ def main() -> int:
     file_count = 0
     skipped = 0
     question_counts: list[int] = []
+    filename_counts: dict[str, int] = {}
 
     for index, record in enumerate(records, start=1):
         q_set = record["question_set"]
@@ -163,7 +163,14 @@ def main() -> int:
         if q_set_id:
             seen_ids.add(q_set_id)
 
-        base_name = _safe_filename(q_set_id, f"question_set_{index}")
+        q_set_name = _safe_text(q_set.get("name"), "").strip()
+        base_name = _safe_filename(q_set_name, f"question_set_{index}")
+
+        current_count = filename_counts.get(base_name, 0)
+        filename_counts[base_name] = current_count + 1
+        if current_count:
+            base_name = f"{base_name}_{current_count + 1}"
+
         file_path = args.output_dir / f"{base_name}.md"
 
         markdown = _render_question_set_markdown(

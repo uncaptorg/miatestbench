@@ -1,0 +1,93 @@
+# Question Set Representation
+
+- domain: Unknown Domain (no-id)
+- questionnaire: CESPHN initial questionnaire [universal]
+
+1. **Question**: Over the past week, what time did you usually go to bed on WEEKDAYS?
+   - code: SLEEPWAKE_1
+   - options:
+     - value: 1 | meaning: 
+     - value: 2 | meaning: 
+     - value: 3 | meaning: 
+     - value: 4 | meaning: 
+     - value: 5 | meaning: 
+     - value: 6 | meaning: 
+     - value: 7 | meaning: 
+     - value: 8 | meaning: 
+     - value: 9 | meaning: 
+     - value: 10 | meaning: 
+     - value: 11 | meaning: 
+     - value: 12 | meaning: 
+     - value: 13 | meaning: 
+     - value: 14 | meaning: 
+     - value: 15 | meaning: 
+2. **Question**: Over the past week, what time did you usually wake up on WEEKDAYS?
+   - code: SLEEPWAKE_2
+   - options:
+     - value: 1 | meaning: 
+     - value: 2 | meaning: 
+     - value: 3 | meaning: 
+     - value: 4 | meaning: 
+     - value: 5 | meaning: 
+     - value: 6 | meaning: 
+     - value: 7 | meaning: 
+     - value: 8 | meaning: 
+     - value: 9 | meaning: 
+     - value: 10 | meaning: 
+     - value: 11 | meaning: 
+     - value: 12 | meaning: 
+     - value: 13 | meaning: 
+     - value: 14 | meaning: 
+     - value: 15 | meaning: 
+     - value: 16 | meaning: 
+     - value: 17 | meaning: 
+     - value: 18 | meaning: 
+3. **Question**: Over the past week, what time did you usually go to bed on WEEKENDS?
+   - code: SLEEPWAKE_3
+   - options:
+     - value: 1 | meaning: 
+     - value: 2 | meaning: 
+     - value: 3 | meaning: 
+     - value: 4 | meaning: 
+     - value: 5 | meaning: 
+     - value: 6 | meaning: 
+     - value: 7 | meaning: 
+     - value: 8 | meaning: 
+     - value: 9 | meaning: 
+     - value: 10 | meaning: 
+     - value: 11 | meaning: 
+     - value: 12 | meaning: 
+     - value: 13 | meaning: 
+     - value: 14 | meaning: 
+     - value: 15 | meaning: 
+4. **Question**: Over the past week, what time did you usually wake up on WEEKENDS?
+   - code: SLEEPWAKE_4
+   - options:
+     - value: 1 | meaning: 
+     - value: 2 | meaning: 
+     - value: 3 | meaning: 
+     - value: 4 | meaning: 
+     - value: 5 | meaning: 
+     - value: 6 | meaning: 
+     - value: 7 | meaning: 
+     - value: 8 | meaning: 
+     - value: 9 | meaning: 
+     - value: 10 | meaning: 
+     - value: 11 | meaning: 
+     - value: 12 | meaning: 
+     - value: 13 | meaning: 
+     - value: 14 | meaning: 
+     - value: 15 | meaning: 
+     - value: 16 | meaning: 
+     - value: 17 | meaning: 
+     - value: 18 | meaning: 
+5. **Question**: Over the past week, how many hours of sleep did you usually get per night?
+   - code: SLEEPWAKE_5
+   - options: none
+6. **Question**: Over the past week, how often did you feel unrested or unrefreshed when you woke up, even if the duration of your sleep was normal?
+   - code: SLEEPWAKE_6
+   - options:
+     - value: 0 | meaning: 
+     - value: 1 | meaning: 
+     - value: 2 | meaning: 
+     - value: 3 | meaning:
