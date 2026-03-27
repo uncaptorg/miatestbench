@@ -6,26 +6,26 @@
 1. **Question**: Have you ever experienced a major medical problem (e.g. asthma, cancer, migraines, etc.) that has affected your every day life? 
    - code: PHYSICALHIS_1
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
+     - No
+     - Yes
 2. **Question**: Please specify major medical problem(s):
    - code: PHYSICALHIS_2
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning: 
-     - value: 11 | meaning: 
-     - value: 12 | meaning: 
-     - value: 13 | meaning: 
-     - value: 14 | meaning: 
-     - value: 15 | meaning: 
-     - value: 16 | meaning: 
-     - value: 17 | meaning: 
-     - value: 18 | meaning:
+     - Allergy (e.g. seasonal, dietary)
+     - Arthritis, osteoporosis or other musculoskeletal problem
+     - Autoimmune or endocrine disorder (e.g. lupus or thyroid disorders)
+     - Brain injury or brain damage
+     - Cancer
+     - Cardiovascular disease (e.g. heart attack, high blood pressure, high cholesterol)
+     - Diabetes (including high blood sugar)
+     - HIV or AIDS
+     - Injury requiring hospitalisation (e.g. severe trauma)
+     - Liver or kidney disease (e.g. hepatitis)
+     - Neurological illness (e.g. MS, headaches/migraines, chronic pain, chronic fatigue syndrome)
+     - Respiratory problem (e.g. asthma, bronchitis)
+     - Sensory problem (e.g. vision, hearing)
+     - Sleep disorder
+     - Stroke
+     - Weight (e.g. obesity or underweight)
+     - Don’t know
+     - Other

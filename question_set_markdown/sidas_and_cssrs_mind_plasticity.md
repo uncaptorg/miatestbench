@@ -6,83 +6,83 @@
 1. **Question**: In the past month, how often have you had thoughts about suicide?
    - code: SIDAS_MP_1
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning: 
+     - 0 - Never
+     - 1
+     - 2
+     - 3
+     - 4
+     - 5
+     - 6
+     - 7
+     - 8
+     - 9
+     - 10 - Always
 2. **Question**: In the past month, how much control have you had over these thoughts?
    - code: SIDAS_MP_2
    - options:
-     - value: 10 | meaning: 
-     - value: 9 | meaning: 
-     - value: 8 | meaning: 
-     - value: 7 | meaning: 
-     - value: 6 | meaning: 
-     - value: 5 | meaning: 
-     - value: 4 | meaning: 
-     - value: 3 | meaning: 
-     - value: 2 | meaning: 
-     - value: 1 | meaning: 
-     - value: 0 | meaning: 
+     - 0 - No control
+     - 1
+     - 2
+     - 3
+     - 4
+     - 5
+     - 6
+     - 7
+     - 8
+     - 9
+     - 10 - Full control
 3. **Question**: In the past month, how close have you come to making a suicide attempt?
    - code: SIDAS_MP_3
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning: 
+     - 0 - Not at all
+     - 1
+     - 2
+     - 3
+     - 4
+     - 5
+     - 6
+     - 7
+     - 8
+     - 9
+     - 10 - Made an attempt
 4. **Question**: In the past month, to what extent have you felt tormented by thoughts about suicide?
    - code: SIDAS_MP_4
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning: 
+     - 0 - Not at all
+     - 1
+     - 2
+     - 3
+     - 4
+     - 5
+     - 6
+     - 7
+     - 8
+     - 9
+     - 10 - Extremely
 5. **Question**: In the past month, how much have thoughts about suicide interfered with your ability to carry out daily activities, such as work, household tasks or social activities?
    - code: SIDAS_MP_5
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning: 
+     - 0 - Not at all
+     - 1
+     - 2
+     - 3
+     - 4
+     - 5
+     - 6
+     - 7
+     - 8
+     - 9
+     - 10 - Extremely
 6. **Question**: In the past month, have you had any intention of acting on these thoughts of killing yourself, as opposed to you have the thoughts but you definitely would not act on them?
    - code: CSSRS_MP_1
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
+     - No
+     - Yes
 7. **Question**: In the past month, have you started to work out or worked out the details of how to kill yourself? Do you intend to carry out this plan?
    - code: CSSRS_MP_2
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
+     - No
+     - Yes
 8. **Question**: In your entire lifetime, have you done any of the following: 
 
 - Attempted to kill yourself even if ending your life was only part of your motivation 
@@ -91,10 +91,10 @@
 - Taken any steps towards making a suicide attempt or preparing to kill yourself
    - code: CSSRS_MP_3
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
+     - No
+     - Yes
 9. **Question**: Have you done any of these things within the past 3 months?
    - code: CSSRS_MP_4
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning:
+     - No
+     - Yes

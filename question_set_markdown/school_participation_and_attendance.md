@@ -8,50 +8,50 @@
 Educational (academic) activities with other children in his or her classroom at school 
    - code: SCH_PPTN_ATTND_1A
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
+     - Unable to perform
+     - Very limited
+     - Somewhat limited
+     - Age expected
 2. **Question**: Social, play and recreational activities with other children at school (e.g., “hanging out,” sports, clubs, hobbies, creative arts, lunchtime or recess activities) 
    - code: SCH_PPTN_ATTND_1B
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
+     - Unable to perform
+     - Very limited
+     - Somewhat limited
+     - Age expected
 3. **Question**: Moving around at school (e.g., to get to and use bathroom, playground, cafeteria, library or other rooms and things that are available to other children his or her age)
    - code: SCH_PPTN_ATTND_1C
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
+     - Unable to perform
+     - Very limited
+     - Somewhat limited
+     - Age expected
 4. **Question**: Using educational materials and equipment that are available to other children in his or her classroom/s or that have been modified for your child (e.g., books, computers, chairs and desks)
    - code: SCH_PPTN_ATTND_1D
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
+     - Unable to perform
+     - Very limited
+     - Somewhat limited
+     - Age expected
 5. **Question**: Communicating with other children and adults at school
    - code: SCH_PPTN_ATTND_1E
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
+     - Unable to perform
+     - Very limited
+     - Somewhat limited
+     - Age expected
 6. **Question**: Over the last school term, how much school on average has your child missed?
    - code: SCH_PPTN_ATTND_2
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning: 
-     - value: 99 | meaning:
+     - None (My child didn't miss any school)
+     - About 10% (e.g. one half day per week)
+     - About 20% (e.g. 1 day per week)
+     - About 30% (e.g. one and a half days per week)
+     - About 40% (e.g. 2 days per week)
+     - About 50% (e.g. two and a half days per week)
+     - About 60% (e.g. 3 days per week)
+     - About 70% (e.g. three and a half days per week)
+     - About 80% (e.g. 4 days per week)
+     - About 90% (e.g. four and a half days per week)
+     - 100% (My child did not attend school)
+     - Not applicable (my child does not attend school)

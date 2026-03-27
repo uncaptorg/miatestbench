@@ -27,6 +27,6 @@
 8. **Question**: # JUST ANOTHER TEST FOR 658
    - code: IMP_TEST_658
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning:
+     - What is my purpose?
+     - What is life?
+     - What is the present?

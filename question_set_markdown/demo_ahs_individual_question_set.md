@@ -12,229 +12,229 @@
 3. **Question**: Gender at Birth
    - code: DEMO_AHS_INDIVIDUAL_GENDER_AT_BIRTH
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
+     - Male
+     - Female
+     - Intersex
+     - Prefer not to answer
 4. **Question**: Gender Identity
    - code: DEMO_AHS_INDIVIDUAL_GENDER
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning: 
-     - value: 11 | meaning: 
+     - Woman
+     - Man
+     - Cisgender
+     - Gender Queer
+     - Gender Fluid
+     - Gender Neutral
+     - Non-Binary
+     - Transgender Female
+     - Transgender Male
+     - Two-Spirit
+     - Prefer not to answer
+     - Other
 5. **Question**: Sexual Identity
    - code: DEMO_AHS_INDIVIDUAL_SEXUAL_IDENTITY
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning: 
+     - Asexual
+     - Bisexual
+     - Gay
+     - Lesbian
+     - Pansexual
+     - Questioning
+     - Straight
+     - Two-Spirit
+     - Prefer not to answer
+     - Not Listed
+     - Other
 6. **Question**: Indigenous Status
    - code: DEMO_AHS_INDIVIDUAL_INDIGENOUS_STATUS_INITIAL
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
+     - Yes
+     - No
+     - Prefer not to answer
 7. **Question**: Indigenous Status
    - code: DEMO_AHS_INDIVIDUAL_INDIGENOUS_STATUS
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
+     - First Nations (Status)
+     - First Nation (Non-Status)
+     - Métis
+     - Inuit
+     - Prefer not to answer
 8. **Question**: Indigenous Community
    - code: DEMO_AHS_INDIVIDUAL_INDIGENOUS_COMMUNITY
    - options: none
 9. **Question**: Ethnicity
    - code: DEMO_AHS_INDIVIDUAL_ETHNICITY
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
+     - Indigenous to North America (e.g. First Nation, Métis, Inuit)
+     - Other North American origins
+     - European origins (e.g., Scottish, French, German, Polish, Romanian, Greek)
+     - Caribbean origins (e.g., Cuban, Dominican, Haitian, Puerto Rican)
+     - Latin, Central, and South American origins (e.g., Brazilian, Columbian, Mexican, Salvadorean)
+     - African origins (e.g., Nigerian, Egyptian, Sudanese, Ethiopian, South African)
+     - Asian origins (e.g., Iranian, Palestinian, East Indian, Punjabi, Chinese, Filipino, Vietnamese)
+     - Oceania origins (e.g., Australian, New Zealander, Pacific Island origins)
+     - Don’t know
+     - Prefer not to answer
 10. **Question**: Minority
    - code: DEMO_AHS_INDIVIDUAL_MINORITY
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
+     - Yes
+     - No
+     - Prefer not to answer
 11. **Question**: Place of Birth
    - code: DEMO_AHS_INDIVIDUAL_PLACE_OF_BIRTH
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
+     - Yes
+     - No
+     - Prefer not to answer
 12. **Question**: Residential Status
    - code: DEMO_AHS_INDIVIDUAL_RESIDENTIAL_STATUS
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
+     - Less than 2 years ago
+     - 2-5 years ago
+     - More than 5 years ago
+     - Prefer not to answer
 13. **Question**: Primary Language
    - code: DEMO_AHS_INDIVIDUAL_PRIMARY_LANGUAGE_INITIAL
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
+     - Yes
+     - No
+     - Prefer not to answer
 14. **Question**: Primary Language
    - code: DEMO_AHS_INDIVIDUAL_PRIMARY_LANGUAGE
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning: 
-     - value: 11 | meaning: 
-     - value: 12 | meaning: 
-     - value: 13 | meaning: 
-     - value: 14 | meaning: 
-     - value: 15 | meaning: 
-     - value: 16 | meaning: 
-     - value: 17 | meaning: 
-     - value: 18 | meaning: 
-     - value: 19 | meaning: 
-     - value: 20 | meaning: 
-     - value: 21 | meaning: 
-     - value: 22 | meaning: 
-     - value: 23 | meaning: 
+     - Arabic
+     - Blackfoot
+     - Cantonese
+     - Chinese, n.o.s.
+     - Cree
+     - Dene
+     - Farsi
+     - French
+     - German
+     - Hindi
+     - Inuktitut
+     - Mandarin
+     - Michif
+     - Ojibway
+     - Panjabi (Punjabi)
+     - Spanish
+     - Stoney Nakoda
+     - Tagalog (Pilipino, Filipino)
+     - Tsuut’ina
+     - Ukrainian
+     - Urdu
+     - Vietnamese
+     - Prefer not to answer
+     - Other
 15. **Question**: Relationship Status
    - code: DEMO_AHS_INDIVIDUAL_RELATIONSHIP_STATUS
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
+     - Single (and have never been married)
+     - Married or living with partner
+     - In a relationship but not living with partner
+     - Separated (but still legally married)
+     - Divorced
+     - Widowed
+     - Prefer not to answer
 16. **Question**: Has Children
    - code: DEMO_AHS_INDIVIDUAL_HAS_CHILDREN
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
+     - Yes
+     - No
+     - Prefer not to answer
 17. **Question**: Child Care Support
    - code: DEMO_AHS_INDIVIDUAL_CHILD_CARE_SUPPORT
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
+     - Myself
+     - The other parent
+     - Family
+     - Friends
+     - Professional childcare (nanny, daycare, day home, respite services)
+     - Prefer not to answer
+     - Other
 18. **Question**: Child Finance Support
    - code: DEMO_AHS_INDIVIDUAL_CHILD_FINANCE_SUPPORT
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
+     - Myself
+     - The other parent
+     - Family
+     - Friends
+     - Prefer not to answer
+     - Other
 19. **Question**: Living Circumstances
    - code: DEMO_AHS_INDIVIDUAL_LIVING_CIRCUMSTANCES
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning: 
-     - value: 11 | meaning: 
-     - value: 12 | meaning: 
-     - value: 13 | meaning: 
-     - value: 14 | meaning: 
+     - Living on my own
+     - Living with parent(s) / caregiver(s)
+     - Living in a multigenerational household
+     - Living with grandparent(s)
+     - Living with a partner
+     - Living with children
+     - Living with friends
+     - Living in a foster home
+     - Living in a group home
+     - Living in a kinship home
+     - Living in student accommodations
+     - Living in a shelter or supportive living
+     - Unstable living conditions
+     - Prefer not to answer
+     - Other
 20. **Question**: Household Income
    - code: DEMO_AHS_INDIVIDUAL_HOUSEHOLD_INCOME
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
+     - Under $25 000
+     - $25 000 – $49 999
+     - $50 000 – $74 999
+     - $75 000 – $99 999
+     - $100 000 – $124 999
+     - $125 000 – $149 999
+     - $150 000 – $174 999
+     - Over $175 000
+     - Don't know
+     - Prefer not to answer
 21. **Question**: Disability
    - code: DEMO_AHS_INDIVIDUAL_HAS_DISABILITY
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
+     - Yes
+     - No
+     - Prefer not to answer
 22. **Question**: Nature of Disability
    - code: DEMO_AHS_INDIVIDUAL_NATURE_OF_DISABILITY
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning: 
-     - value: 11 | meaning: 
-     - value: 12 | meaning: 
+     - Pain-related
+     - Flexibility
+     - Mobility
+     - Mental health-related
+     - Seeing
+     - Hearing
+     - Learning
+     - Memory
+     - Developmental
+     - Dexterity/agility
+     - Unknown
+     - Prefer not to answer
+     - Other
 23. **Question**: Government Benefits
    - code: DEMO_AHS_INDIVIDUAL_HAS_GOV_BENEFIT
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
+     - Yes
+     - No
+     - Prefer not to answer
 24. **Question**: Government Benefits
    - code: DEMO_AHS_INDIVIDUAL_TYPE_OF_GOV_BENEFIT
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning: 
-     - value: 11 | meaning: 
-     - value: 12 | meaning: 
-     - value: 13 | meaning:
+     - Student loan
+     - Advancing Futures Bursary
+     - AISH (Assured Income for the Severely Handicapped)
+     - Alberta Grant for Students with Disabilities (GFD)
+     - Alberta Incomes Support/Alberta Works
+     - Canada Student Grant for Students with Permanent Disabilities (CSG-PD)
+     - Canadian Pension Plan
+     - Child out of Parental Home Allowance
+     - Disability Tax Credit
+     - Independent Living Allowance
+     - Learner Income Support and Skills Investment Bursary
+     - Don't know
+     - Prefer not to answer
+     - Other

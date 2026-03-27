@@ -8,22 +8,22 @@
 During the last 7 days, on how many days did you do vigorous physical activities like heavy lifting, digging, aerobics, or fast bicycling? 
    - code: PH_Q30
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
+     - 0 days
+     - 1 day
+     - 2 days
+     - 3 days
+     - 4 days
+     - 5 days
+     - 6 days
+     - 7 days
 2. **Question**: How much time did you usually spend doing vigorous physical activities on one of those days? 
    - code: PH_Q31
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning:
+     - Under 30 minutes
+     - 30 minutes - 1 hour
+     - 1 hour - 1.5 hours
+     - 1.5 hours - 2 hours
+     - 2 hours - 2.5 hours
+     - 2.5 hours - 3 hours
+     - 3 hours - 3.5 hours
+     - Over 3.5 hours

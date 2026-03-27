@@ -9,10 +9,10 @@
 Moderate to vigorous physical activity is any activity that increases the heart rate and gets your child out of breath some of the time.
    - code: PA_P_5TO10_1
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning:
+     - Never
+     - 1 day a week
+     - 2 days a week
+     - 3 days a week
+     - 4 days a week
+     - 5 days a week
+     - 6 or more days a week

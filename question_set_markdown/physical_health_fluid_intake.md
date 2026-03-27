@@ -6,8 +6,8 @@
 1. **Question**: Over the past four weeks, on average how much fluids did you drink per day? For example, water, coffee, tea, juice, soft drinks. 
    - code: PH_Q29
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning:
+     - 0Ltr - 0.5Ltr (0-2 cups)
+     - 0.5Ltr - 1.5Ltr (2-6 cups)
+     - 1.5Ltr - 2.5Ltr (6-10 cups)
+     - 2.5Ltr - 4Ltr (10-16 cups)
+     - 4Ltrs or more (16 cups or more)

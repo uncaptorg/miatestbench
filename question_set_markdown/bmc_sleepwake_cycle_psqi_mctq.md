@@ -6,88 +6,88 @@
 1. **Question**: Over the past week, what time did you usually go to bed on WEEKDAYS?
    - code: SLEEPWAKE_1
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning: 
-     - value: 11 | meaning: 
-     - value: 12 | meaning: 
-     - value: 13 | meaning: 
-     - value: 14 | meaning: 
-     - value: 15 | meaning: 
+     - 8:00 PM
+     - 8:30 PM
+     - 9:00 PM
+     - 9:30 PM
+     - 10:00 PM
+     - 10:30 PM
+     - 11:00 PM
+     - 11:30 PM
+     - 12 midnight
+     - 12:30 midnight
+     - 1:00 AM
+     - 1:30 AM
+     - 2:00 AM
+     - 2:30 AM
+     - 3:00 AM
 2. **Question**: Over the past week, what time did you usually wake up on WEEKDAYS?
    - code: SLEEPWAKE_2
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning: 
-     - value: 11 | meaning: 
-     - value: 12 | meaning: 
-     - value: 13 | meaning: 
-     - value: 14 | meaning: 
-     - value: 15 | meaning: 
-     - value: 16 | meaning: 
-     - value: 17 | meaning: 
-     - value: 18 | meaning: 
+     - 4:30 AM
+     - 5:00 AM
+     - 5:30 AM
+     - 6:00 AM
+     - 6:30 AM
+     - 7:00 AM
+     - 7:30 AM
+     - 8:00 AM
+     - 8:30 AM
+     - 9:00 AM
+     - 9:30 AM
+     - 10:00 AM
+     - 10:30 AM
+     - 11:00 AM
+     - 11:30 AM
+     - 12 noon
+     - 12:30 noon
+     - 1:00 PM
 3. **Question**: Over the past week, what time did you usually go to bed on WEEKENDS?
    - code: SLEEPWAKE_3
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning: 
-     - value: 11 | meaning: 
-     - value: 12 | meaning: 
-     - value: 13 | meaning: 
-     - value: 14 | meaning: 
-     - value: 15 | meaning: 
+     - 8:00 PM
+     - 8:30 PM
+     - 9:00 PM
+     - 9:30 PM
+     - 10:00 PM
+     - 10:30 PM
+     - 11:00 PM
+     - 11:30 PM
+     - 12 midnight
+     - 12:30 midnight
+     - 1:00 AM
+     - 1:30 AM
+     - 2:00 AM
+     - 2:30 AM
+     - 3:00 AM
 4. **Question**: Over the past week, what time did you usually wake up on WEEKENDS?
    - code: SLEEPWAKE_4
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning: 
-     - value: 11 | meaning: 
-     - value: 12 | meaning: 
-     - value: 13 | meaning: 
-     - value: 14 | meaning: 
-     - value: 15 | meaning: 
-     - value: 16 | meaning: 
-     - value: 17 | meaning: 
-     - value: 18 | meaning: 
+     - 4:30 AM
+     - 5:00 AM
+     - 5:30 AM
+     - 6:00 AM
+     - 6:30 AM
+     - 7:00 AM
+     - 7:30 AM
+     - 8:00 AM
+     - 8:30 AM
+     - 9:00 AM
+     - 9:30 AM
+     - 10:00 AM
+     - 10:30 AM
+     - 11:00 AM
+     - 11:30 AM
+     - 12 noon
+     - 12:30 noon
+     - 1:00 PM
 5. **Question**: Over the past week, how many hours of sleep did you usually get per night?
    - code: SLEEPWAKE_5
    - options: none
 6. **Question**: Over the past week, how often did you feel unrested or unrefreshed when you woke up, even if the duration of your sleep was normal?
    - code: SLEEPWAKE_6
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning:
+     - Never
+     - Sometimes
+     - Often
+     - Almost always

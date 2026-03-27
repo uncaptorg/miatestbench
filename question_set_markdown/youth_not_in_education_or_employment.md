@@ -6,25 +6,25 @@
 1. **Question**: Are you currently engaged in education or study (e.g. school, TAFE or university) on a regular basis? 
    - code: NEET_1_
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
+     - No
+     - Yes, enrolled in part-time study (includes waiting for term to (re)start)
+     - Yes, enrolled in full-time study (includes waiting for term to (re)start)
+     - Yes, enrolled in study but no longer attending
+     - Yes, doing an apprenticeship/traineeship
 2. **Question**: Are you currently engaged in paid employment or work on a regular basis?
    - code: NEET_2_
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
+     - No
+     - Yes, part-time work 
+     - Yes, full-time work
+     - Yes, but absent on holidays, paid leave, on strike or temporarily stood down
 3. **Question**: Are you currently engaged in voluntary work through an organisation or group on a regular basis?
    - code: NEET_3_
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
+     - No
+     - Yes
 4. **Question**: Are you currently providing unpaid care, help or assistance to family members or others because of a disability, a long term illness, or problems related to old age on a regular basis?
    - code: NEET_4_
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning:
+     - No
+     - Yes

@@ -6,15 +6,15 @@
 1. **Question**: What sex were you assigned at birth, on your original birth certificate?
    - code: ABE
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
+     - Male
+     - Female
 2. **Question**: How do you describe yourself?
    - code: ABU
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
+     - Male
+     - Female
+     - Transgender
+     - Do not identify as female, male, or transgender
 3. **Question**: What is your date of birth?
    - code: AIN
    - options: none
@@ -24,58 +24,58 @@
 5. **Question**: What is the main language spoken in your home?
    - code: ABS
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
+     - English
+     - Other
 6. **Question**: Please specify
    - code: AIO
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning: 
-     - value: 11 | meaning: 
-     - value: 12 | meaning: 
-     - value: 13 | meaning: 
-     - value: 14 | meaning: 
-     - value: 15 | meaning: 
+     - Arabic
+     - Cantonese
+     - Croatian
+     - French
+     - Greek
+     - Italian
+     - Japanese
+     - Mandarin
+     - Macedonian
+     - Serbian
+     - Spanish
+     - Tagalog/ Filipino
+     - Turkish
+     - Vietnamese
+     - Other
 7. **Question**: Are you of Aboriginal or Torres Strait Islander origin?
    - code: AIP
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
+     - No
+     - Yes, Aboriginal
+     - Yes, Torres Strait Islander
+     - Yes, both Aboriginal and Torres Strait Islander
 8. **Question**: Do you have children?
    - code: AIQ
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
+     - No
+     - Yes
 9. **Question**: How many children do you have?
    - code: AIR
    - options: none
 10. **Question**: What is the highest level of education you have completed?
    - code: AIS
    - options:
-     - value: 1 | meaning: 
-     - value: 0 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
+     - Postgraduate Diploma, Masters or PhD
+     - No formal education
+     - Undergraduate degree
+     - Certificate or Diploma (includes TAFE, trade qualification)
+     - Year 12 or equivalent
+     - Year 11 or equivalent
+     - Year 10 or equivalent
+     - Year 9 or equivalent
+     - Year 8 or below
 11. **Question**: Do you have a disability?
    - code: AIT
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
+     - No
+     - Yes
 12. **Question**: Please specify the nature of your disability
    - code: AIU
    - options: none
@@ -83,45 +83,45 @@
 payment or benefit)?
    - code: AJX
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
+     - No
+     - Yes
 14. **Question**: Do you know what this government-based benefit(s) is called?
    - code: AIV
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
+     - Disability Support Pension
+     - Sickness benefit (e.g. Sickness Allowance)
+     - Unemployment benefit (e.g. Youth Allowance or Newstart Allowance)
+     - Income Protection or Salary Continuance
+     - Don't know
+     - Other
 15. **Question**: What are your current living circumstances?
    - code: AIW
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
+     - Living on my own
+     - Living with family (including partners and dependents), friends, or flatmates
+     - Living in shared living accommodation (e.g. hostel, dormitory, boarding school, group home or refuge)
+     - Living in a retirement village or self-care unit
+     - Living in a nursing home
+     - Homeless
+     - Other
 16. **Question**: In relation to the living circumstance specified in the previous question, are you…?
    - code: AJI
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
+     - Independent
+     - Partially supported by services, relatives, or the people with whom you live
+     - Dependent on services, relatives, or the people with whom you live
 17. **Question**: Which one of these best describes your current relationship status?
    - code: AIX
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
+     - Single (and have never been married)
+     - Married or living with partner
+     - In a relationship but not living with partner
+     - Separated (but still legally married)
+     - Divorced
+     - Widowed
 18. **Question**: Do you think of yourself as (please check all that apply):
    - code: AIY
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning:
+     - Straight
+     - Gay or lesbian
+     - Bisexual

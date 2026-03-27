@@ -15,8 +15,8 @@
 4. **Question**: In the past four (4) weeks, how often have physical health problems been the main cause of these feelings?
    - code: K10PLUS_4
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning:
+     - None of the time
+     - A little of the time
+     - Some of the time
+     - Most of the time
+     - All of the time

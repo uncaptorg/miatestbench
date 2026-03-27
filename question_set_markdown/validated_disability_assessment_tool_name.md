@@ -6,8 +6,8 @@
 1. **Question**: Do you have a disability 
    - code: DISABILITY_1
    - options:
-     - value: 1 | meaning: 
-     - value: 0 | meaning: 
+     - Yes
+     - No
 2. **Question**: Specify:
    - code: DISABILITY_2
    - options: none

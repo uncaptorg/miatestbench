@@ -39,10 +39,10 @@ def _collect_question_set_records(payload: dict[str, Any]) -> list[dict[str, Any
 
     for questionnaire in payload.get("questionnaires", []):
         questionnaire_name = _safe_text(questionnaire.get("name"), "Unnamed Questionnaire")
-        domain_id = _safe_text(questionnaire.get("health_domain_id")).strip()
-        domain_label = domain_map.get(domain_id, f"Unknown Domain ({domain_id or 'no-id'})")
 
         for q_set in questionnaire.get("question_sets", []):
+            domain_id = _safe_text(q_set.get("health_domain_id")).strip()
+            domain_label = domain_map.get(domain_id, f"Unknown Domain ({domain_id or 'no-id'})")
             records.append(
                 {
                     "domain_label": domain_label,
@@ -55,9 +55,8 @@ def _collect_question_set_records(payload: dict[str, Any]) -> list[dict[str, Any
 
 
 def _render_option_line(option: dict[str, Any]) -> str:
-    value = _safe_text(option.get("value"), "")
-    meaning = _safe_text(option.get("label"), "")
-    return f"- value: {value} | meaning: {meaning}"
+    text = _safe_text(option.get("text"), "")
+    return f"- {text}"
 
 
 def _render_question_set_markdown(

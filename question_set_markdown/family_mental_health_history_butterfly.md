@@ -8,18 +8,18 @@
 
    - code: FAMHIS_BF_1
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
+     - No
+     - Yes
 2. **Question**: Please specify the mental health and/or behavioural problem(s)
    - code: FAMHIS_BF_2
    - options:
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning:
+     - Anxiety
+     - Alcohol or other substance misuse
+     - Bipolar disorder
+     - Depression
+     - Eating disorder
+     - Psychosis
+     - Schizophrenia
+     - Suicide (attempted or died by suicide)
+     - Don’t know
+     - Other

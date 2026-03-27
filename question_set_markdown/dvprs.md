@@ -1,19 +1,19 @@
 # Question Set Representation
 
-- domain: Unknown Domain (no-id)
+- domain: Pain
 - questionnaire: OpenArms_Initial questionnaire
 
 1. **Question**: Please rate the severity of your CURRENT PAIN by selecting the corresponding number (0 to 10).
    - code: DVPRS_1
    - options:
-     - value: 0 | meaning: 
-     - value: 1 | meaning: 
-     - value: 2 | meaning: 
-     - value: 3 | meaning: 
-     - value: 4 | meaning: 
-     - value: 5 | meaning: 
-     - value: 6 | meaning: 
-     - value: 7 | meaning: 
-     - value: 8 | meaning: 
-     - value: 9 | meaning: 
-     - value: 10 | meaning:
+     - 0 - No pain
+     - 1 - Hardly notice pain
+     - 2 - Notice pain, does not interfere with activities
+     - 3 - Sometimes distracts me
+     - 4 - Distracts me, can do usual activities
+     - 5 - Interrupts some activities
+     - 6 - Hard to ignore, avoid usual activities
+     - 7 - Focus of attention, prevents doing daily activities
+     - 8 - Awful, hard to do anything
+     - 9 - Can’t bear the pain, unable to do anything
+     - 10 - As bad as it could be, nothing else matters
