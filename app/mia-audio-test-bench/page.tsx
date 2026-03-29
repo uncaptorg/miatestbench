@@ -53,6 +53,13 @@ type FeedbackResponse = {
   observe_score?: number | null;
   orient_score?: number | null;
   decide_score?: number | null;
+  knowns?: string[] | null;
+  unknowns?: string[] | null;
+  assumptions?: string[] | null;
+  assessment_message?: string | null;
+  why_this_question?: string | null;
+  kb_evidence?: string[] | null;
+  kb_evidence_sources?: string[] | null;
 };
 
 type SessionInfoResponse = {
@@ -310,6 +317,13 @@ const OPTIONAL_DEMOGRAPHICS_FIELDS: OptionalDemographicsFieldMeta[] = [
 
 const DEFAULT_CLIENT_DEMOGRAPHICS = {
   age: 30,
+  gender: "Female",
+  genderAtBirth: "Female",
+  sexualIdentity: "Heterosexual",
+  state: "NSW",
+  postcode: "2000",
+  country: "AU",
+  context: "",
 };
 
 const sleep = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -394,6 +408,13 @@ export default function MiaAudioTestBenchPage() {
   const [nextExpectedSequence, setNextExpectedSequence] = useState<number | null>(null);
   const [summaryNotes, setSummaryNotes] = useState("");
   const [promptQuestions, setPromptQuestions] = useState<string[]>([]);
+  const [knowns, setKnowns] = useState<string[]>([]);
+  const [unknowns, setUnknowns] = useState<string[]>([]);
+  const [assumptions, setAssumptions] = useState<string[]>([]);
+  const [assessmentMessage, setAssessmentMessage] = useState<string>("");
+  const [whyThisQuestion, setWhyThisQuestion] = useState<string>("");
+  const [kbEvidence, setKbEvidence] = useState<string[]>([]);
+  const [kbEvidenceSources, setKbEvidenceSources] = useState<string[]>([]);
   const [feedbackScores, setFeedbackScores] = useState<FeedbackScores>(createDefaultFeedbackScores);
   const [feedbackRationales, setFeedbackRationales] = useState<FeedbackRationales>(createDefaultFeedbackRationales);
   const [liveTranscription, setLiveTranscription] = useState<string>("");
@@ -472,6 +493,8 @@ export default function MiaAudioTestBenchPage() {
     setObserveScore(null);
     setOrientScore(null);
     setDecideScore(null);
+    setKbEvidence([]);
+    setKbEvidenceSources([]);
     processingStartTimeRef.current = null;
     prevLastModifiedRef.current = "";
     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
@@ -660,6 +683,13 @@ export default function MiaAudioTestBenchPage() {
         if (Array.isArray(feedback.prompt_questions)) {
           setPromptQuestions(feedback.prompt_questions);
         }
+        if (Array.isArray(feedback.knowns)) setKnowns(feedback.knowns);
+        if (Array.isArray(feedback.unknowns)) setUnknowns(feedback.unknowns);
+        if (Array.isArray(feedback.assumptions)) setAssumptions(feedback.assumptions);
+        if (typeof feedback.assessment_message === "string") setAssessmentMessage(feedback.assessment_message);
+        if (typeof feedback.why_this_question === "string") setWhyThisQuestion(feedback.why_this_question);
+        if (Array.isArray(feedback.kb_evidence)) setKbEvidence(feedback.kb_evidence);
+        if (Array.isArray(feedback.kb_evidence_sources)) setKbEvidenceSources(feedback.kb_evidence_sources);
         if (typeof feedback.last_sequence_processed === "number") {
           setLastSequenceProcessed(feedback.last_sequence_processed);
         }
@@ -1530,6 +1560,12 @@ export default function MiaAudioTestBenchPage() {
                 Proxy path: <span className="font-mono">/api/mia/*</span>
               </p>
 
+              {errorMessage ? (
+                <div className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+                  {errorMessage}
+                </div>
+              ) : null}
+
               <div className="grid grid-cols-2 gap-3 pt-1">
                 <button
                   onClick={startSession}
@@ -1831,6 +1867,93 @@ export default function MiaAudioTestBenchPage() {
                 )}
               </div>
             </div>
+
+            {/* Assessment Awareness Panel */}
+            {(assessmentMessage || knowns.length > 0 || unknowns.length > 0 || assumptions.length > 0 || whyThisQuestion) && (
+              <div className="mt-4 rounded-lg border bg-white p-4">
+                <h3 className="mb-4 text-sm font-semibold">Assessment Awareness</h3>
+
+                {assessmentMessage && (
+                  <div className="mb-4 rounded-lg border border-teal-100 bg-teal-50 px-4 py-3 text-sm leading-relaxed text-teal-900">
+                    {assessmentMessage}
+                  </div>
+                )}
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  {knowns.length > 0 && (
+                    <div>
+                      <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-teal-600">What We Know</div>
+                      <ul className="flex flex-col gap-1.5">
+                        {knowns.map((k, i) => (
+                          <li key={i} className="flex gap-2 text-xs text-slate-700">
+                            <span className="mt-0.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-teal-400" />
+                            {k}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {unknowns.length > 0 && (
+                    <div>
+                      <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-amber-600">What We&apos;re Exploring</div>
+                      <ul className="flex flex-col gap-1.5">
+                        {unknowns.map((u, i) => (
+                          <li key={i} className="flex gap-2 text-xs text-slate-700">
+                            <span className="mt-0.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-400" />
+                            {u}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {assumptions.length > 0 && (
+                    <div>
+                      <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">Working Assumptions</div>
+                      <ul className="flex flex-col gap-1.5">
+                        {assumptions.map((a, i) => (
+                          <li key={i} className="flex gap-2 text-xs text-slate-600 italic">
+                            <span className="mt-0.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-slate-400" />
+                            {a}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {whyThisQuestion && (
+                  <div className="mt-4 rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3">
+                    <div className="mb-1 text-[10px] font-bold uppercase tracking-widest text-indigo-500">Why These Questions</div>
+                    <p className="text-xs leading-relaxed text-indigo-900">{whyThisQuestion}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {kbEvidence.length > 0 && (
+              <div className="mt-4 rounded-lg border bg-white p-4">
+                <h3 className="mb-3 text-sm font-semibold">Knowledge Bank — Evidence used this pass</h3>
+                <div className="flex flex-col gap-2">
+                  {kbEvidence.map((chunk, i) => {
+                    if (!chunk?.trim()) return null;
+                    const sourceName = kbEvidenceSources[i];
+                    return (
+                      <div key={i} className="rounded-md border border-indigo-100 bg-indigo-50 px-3 py-2 text-xs leading-relaxed text-indigo-900">
+                        <div className="mb-1 flex items-center gap-2">
+                          <span className="font-bold text-indigo-400">#{i + 1}</span>
+                          {sourceName && (
+                            <span className="rounded bg-indigo-200 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-700 truncate max-w-[240px]" title={sourceName}>
+                              {sourceName}
+                            </span>
+                          )}
+                        </div>
+                        {chunk.trim()}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <div className="mt-4 rounded-lg border bg-slate-50 p-4">
               <h3 className="mb-4 text-sm font-semibold">Feedback Scores</h3>
