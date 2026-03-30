@@ -2035,16 +2035,9 @@ export default function MiaAudioTestBenchPage() {
                 )}
 
                 {/* Treatment & Next Steps */}
-                {(sessionTreatmentGoals.length > 0 || sessionFirstLineTreatment.length > 0 || sessionSecondLineTreatment.length > 0 || sessionFurtherAssessment.length > 0 || sessionInterventions) && (
+                {(sessionTreatmentGoals.length > 0 || sessionFirstLineTreatment.length > 0 || sessionSecondLineTreatment.length > 0 || sessionFurtherAssessment.length > 0) && (
                   <div className="mb-3 rounded-md border border-slate-200 bg-white p-3">
                     <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Treatment & Next Steps</p>
-
-                    {sessionInterventions && (
-                      <div className="mb-2">
-                        <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">Recommended Interventions</p>
-                        <p className="text-sm text-slate-700">{sessionInterventions}</p>
-                      </div>
-                    )}
 
                     {sessionFurtherAssessment.length > 0 && (
                       <div className="mb-2">
