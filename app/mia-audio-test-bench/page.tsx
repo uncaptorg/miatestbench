@@ -69,6 +69,33 @@ type SessionInfoResponse = {
   assumptions?: string[];
   missing_information?: string[];
   summary?: string | null;
+  // Risk
+  suicidality_risk_rating?: string | null;
+  risk_score?: number | null;
+  risk?: string | null;
+  // Clinical reasoning
+  inferences?: string | null;
+  differential_diagnosis?: string | null;
+  root_cause?: string | null;
+  prognosis?: string | null;
+  interventions?: string | null;
+  key_insights?: string[];
+  // Treatment
+  likely_treatment_goals?: string[];
+  first_line_treatment?: string[];
+  second_line_treatment?: string[];
+  further_assessment_steps?: string[];
+  // Domain scores
+  risk_assessment_score?: number | null;
+  risk_assessment_score_reason?: string[];
+  functioning_score?: number | null;
+  functioning_score_reason?: string[];
+  comorbidity_score?: number | null;
+  comorbidity_score_reason?: string[];
+  physical_health_score?: number | null;
+  physical_health_score_reason?: string[];
+  illness_type_score?: number | null;
+  illness_type_score_reason?: string[];
 };
 
 type TranscriptionSegment = {
@@ -438,6 +465,27 @@ export default function MiaAudioTestBenchPage() {
   const [sessionAssumptions, setSessionAssumptions] = useState<string[]>([]);
   const [sessionMissingInformation, setSessionMissingInformation] = useState<string[]>([]);
   const [sessionFailureReason, setSessionFailureReason] = useState("");
+  // Rich session fields
+  const [sessionRiskRating, setSessionRiskRating] = useState<string | null>(null);
+  const [sessionRiskScore, setSessionRiskScore] = useState<number | null>(null);
+  const [sessionRisk, setSessionRisk] = useState<string | null>(null);
+  const [sessionInferences, setSessionInferences] = useState<string | null>(null);
+  const [sessionDifferentialDiagnosis, setSessionDifferentialDiagnosis] = useState<string | null>(null);
+  const [sessionRootCause, setSessionRootCause] = useState<string | null>(null);
+  const [sessionPrognosis, setSessionPrognosis] = useState<string | null>(null);
+  const [sessionInterventions, setSessionInterventions] = useState<string | null>(null);
+  const [sessionKeyInsights, setSessionKeyInsights] = useState<string[]>([]);
+  const [sessionTreatmentGoals, setSessionTreatmentGoals] = useState<string[]>([]);
+  const [sessionFirstLineTreatment, setSessionFirstLineTreatment] = useState<string[]>([]);
+  const [sessionSecondLineTreatment, setSessionSecondLineTreatment] = useState<string[]>([]);
+  const [sessionFurtherAssessment, setSessionFurtherAssessment] = useState<string[]>([]);
+  const [sessionDomainScores, setSessionDomainScores] = useState<{
+    risk: number | null; riskReasons: string[];
+    functioning: number | null; functioningReasons: string[];
+    comorbidity: number | null; comorbidityReasons: string[];
+    physicalHealth: number | null; physicalHealthReasons: string[];
+    illnessType: number | null; illnessTypeReasons: string[];
+  } | null>(null);
   const [transcriptionText, setTranscriptionText] = useState("");
   const [transcriptionSegments, setTranscriptionSegments] = useState<TranscriptionSegment[]>([]);
   const [isFetchingTranscription, setIsFetchingTranscription] = useState(false);
@@ -478,6 +526,20 @@ export default function MiaAudioTestBenchPage() {
     setSessionAssumptions([]);
     setSessionMissingInformation([]);
     setSessionFailureReason("");
+    setSessionRiskRating(null);
+    setSessionRiskScore(null);
+    setSessionRisk(null);
+    setSessionInferences(null);
+    setSessionDifferentialDiagnosis(null);
+    setSessionRootCause(null);
+    setSessionPrognosis(null);
+    setSessionInterventions(null);
+    setSessionKeyInsights([]);
+    setSessionTreatmentGoals([]);
+    setSessionFirstLineTreatment([]);
+    setSessionSecondLineTreatment([]);
+    setSessionFurtherAssessment([]);
+    setSessionDomainScores(null);
     setTranscriptionText("");
     setTranscriptionSegments([]);
     setTranscriptionError("");
@@ -777,6 +839,37 @@ export default function MiaAudioTestBenchPage() {
         setSessionAssumptions(Array.isArray(info.assumptions) ? info.assumptions : []);
         setSessionMissingInformation(Array.isArray(info.missing_information) ? info.missing_information : []);
         setSessionFailureReason(typeof info.failure_reason === "string" ? info.failure_reason : "");
+        setSessionRiskRating(info.suicidality_risk_rating ?? null);
+        setSessionRiskScore(info.risk_score ?? null);
+        setSessionRisk(info.risk ?? null);
+        setSessionInferences(info.inferences ?? null);
+        setSessionDifferentialDiagnosis(info.differential_diagnosis ?? null);
+        setSessionRootCause(info.root_cause ?? null);
+        setSessionPrognosis(info.prognosis ?? null);
+        setSessionInterventions(info.interventions ?? null);
+        setSessionKeyInsights(Array.isArray(info.key_insights) ? info.key_insights : []);
+        setSessionTreatmentGoals(Array.isArray(info.likely_treatment_goals) ? info.likely_treatment_goals : []);
+        setSessionFirstLineTreatment(Array.isArray(info.first_line_treatment) ? info.first_line_treatment : []);
+        setSessionSecondLineTreatment(Array.isArray(info.second_line_treatment) ? info.second_line_treatment : []);
+        setSessionFurtherAssessment(Array.isArray(info.further_assessment_steps) ? info.further_assessment_steps : []);
+        if (
+          info.risk_assessment_score !== undefined ||
+          info.functioning_score !== undefined ||
+          info.illness_type_score !== undefined
+        ) {
+          setSessionDomainScores({
+            risk: info.risk_assessment_score ?? null,
+            riskReasons: Array.isArray(info.risk_assessment_score_reason) ? info.risk_assessment_score_reason : [],
+            functioning: info.functioning_score ?? null,
+            functioningReasons: Array.isArray(info.functioning_score_reason) ? info.functioning_score_reason : [],
+            comorbidity: info.comorbidity_score ?? null,
+            comorbidityReasons: Array.isArray(info.comorbidity_score_reason) ? info.comorbidity_score_reason : [],
+            physicalHealth: info.physical_health_score ?? null,
+            physicalHealthReasons: Array.isArray(info.physical_health_score_reason) ? info.physical_health_score_reason : [],
+            illnessType: info.illness_type_score ?? null,
+            illnessTypeReasons: Array.isArray(info.illness_type_score_reason) ? info.illness_type_score_reason : [],
+          });
+        }
 
         if (nextStatus === "COMPLETED") {
           if (awaitingReadyTranscription && !isFetchingTranscription) {
@@ -1161,6 +1254,20 @@ export default function MiaAudioTestBenchPage() {
       setSessionAssumptions([]);
       setSessionMissingInformation([]);
       setSessionFailureReason("");
+      setSessionRiskRating(null);
+      setSessionRiskScore(null);
+      setSessionRisk(null);
+      setSessionInferences(null);
+      setSessionDifferentialDiagnosis(null);
+      setSessionRootCause(null);
+      setSessionPrognosis(null);
+      setSessionInterventions(null);
+      setSessionKeyInsights([]);
+      setSessionTreatmentGoals([]);
+      setSessionFirstLineTreatment([]);
+      setSessionSecondLineTreatment([]);
+      setSessionFurtherAssessment([]);
+      setSessionDomainScores(null);
       setTranscriptionText("");
       setTranscriptionSegments([]);
       setTranscriptionError("");
@@ -1787,7 +1894,7 @@ export default function MiaAudioTestBenchPage() {
               </div>
 
               <div className="rounded-lg border bg-slate-50 p-4">
-                <div className="mb-2 flex items-center justify-between gap-2">
+                <div className="mb-3 flex items-center justify-between gap-2">
                   <h3 className="text-sm font-semibold">Session Information</h3>
                   <button
                     type="button"
@@ -1798,51 +1905,236 @@ export default function MiaAudioTestBenchPage() {
                     {isUpdatingSession ? "Updating..." : "Request Edit"}
                   </button>
                 </div>
-                <ul className="space-y-1 text-sm text-slate-700">
+                <ul className="mb-3 space-y-1 text-xs text-slate-500">
                   <li>session_id: {sessionId || "-"}</li>
                   <li>status: {status}</li>
-                  <li>last_sequence_processed: {lastSequenceProcessed ?? "-"}</li>
-                  <li>next_expected_sequence: {nextExpectedSequence ?? "-"}</li>
+                  <li>last_sequence_processed: {lastSequenceProcessed ?? "-"} &nbsp;|&nbsp; next_expected: {nextExpectedSequence ?? "-"}</li>
                 </ul>
 
-                <div className="mt-3 rounded-md border border-slate-200 bg-white p-3">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Summary (Markdown)</p>
+                {/* Risk Banner — shown only when data is present */}
+                {(sessionRiskRating || sessionRiskScore != null) && (
+                  <div className={`mb-3 flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium ${
+                    sessionRiskRating === "High" ? "bg-red-50 border border-red-200 text-red-800" :
+                    sessionRiskRating === "Moderate" ? "bg-amber-50 border border-amber-200 text-amber-800" :
+                    "bg-green-50 border border-green-200 text-green-800"
+                  }`}>
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                      sessionRiskRating === "High" ? "bg-red-100 text-red-700" :
+                      sessionRiskRating === "Moderate" ? "bg-amber-100 text-amber-700" :
+                      "bg-green-100 text-green-700"
+                    }`}>
+                      {sessionRiskRating ?? "—"}
+                    </span>
+                    <span>Suicide Risk Rating</span>
+                    {sessionRiskScore != null && (
+                      <span className="ml-auto text-xs font-normal opacity-70">Risk score: {sessionRiskScore}/10</span>
+                    )}
+                  </div>
+                )}
+
+                {sessionRisk && (
+                  <div className="mb-3 rounded-md border border-slate-200 bg-white p-3">
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Risk Narrative</p>
+                    <p className="text-sm text-slate-700">{sessionRisk}</p>
+                  </div>
+                )}
+
+                {/* Summary */}
+                <div className="mb-3 rounded-md border border-slate-200 bg-white p-3">
+                  <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Clinical Summary</p>
                   <div className="text-sm text-slate-700 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">
                     <ReactMarkdown>{sessionSummary || "-"}</ReactMarkdown>
                   </div>
                 </div>
 
-                <div className="mt-3 rounded-md border border-slate-200 bg-white p-3">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Failure Reason (Markdown)</p>
-                  <div className="text-sm text-slate-700 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">
-                    <ReactMarkdown>{sessionFailureReason || "-"}</ReactMarkdown>
+                {/* Inferences / Formulation */}
+                {sessionInferences && (
+                  <div className="mb-3 rounded-md border border-slate-200 bg-white p-3">
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Cross-Domain Inferences</p>
+                    <p className="text-sm text-slate-700">{sessionInferences}</p>
                   </div>
-                </div>
+                )}
 
-                <div className="mt-3 rounded-md border border-slate-200 bg-white p-3">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Assumptions (Markdown)</p>
-                  <div className="text-sm text-slate-700 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">
-                    <ReactMarkdown>
-                      {sessionAssumptions.length > 0
-                        ? sessionAssumptions.map((item) => `- ${item}`).join("\n")
-                        : "-"}
-                    </ReactMarkdown>
+                {/* Differential Diagnosis */}
+                {sessionDifferentialDiagnosis && (
+                  <div className="mb-3 rounded-md border border-slate-200 bg-white p-3">
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Differential Diagnosis</p>
+                    <p className="text-sm text-slate-700">{sessionDifferentialDiagnosis}</p>
                   </div>
-                </div>
+                )}
 
-                <div className="mt-3 rounded-md border border-slate-200 bg-white p-3">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Missing Information (Markdown)</p>
-                  <div className="text-sm text-slate-700 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">
-                    <ReactMarkdown>
-                      {sessionMissingInformation.length > 0
-                        ? sessionMissingInformation.map((item) => `- ${item}`).join("\n")
-                        : "-"}
-                    </ReactMarkdown>
+                {/* Root Cause + Prognosis side by side */}
+                {(sessionRootCause || sessionPrognosis) && (
+                  <div className="mb-3 grid gap-3 sm:grid-cols-2">
+                    {sessionRootCause && (
+                      <div className="rounded-md border border-slate-200 bg-white p-3">
+                        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Root Cause</p>
+                        <p className="text-sm text-slate-700">{sessionRootCause}</p>
+                      </div>
+                    )}
+                    {sessionPrognosis && (
+                      <div className="rounded-md border border-slate-200 bg-white p-3">
+                        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Prognosis</p>
+                        <p className="text-sm text-slate-700">{sessionPrognosis}</p>
+                      </div>
+                    )}
                   </div>
-                </div>
-                {status === "THINKING" ? (
+                )}
+
+                {/* Key Insights */}
+                {sessionKeyInsights.length > 0 && (
+                  <div className="mb-3 rounded-md border border-slate-200 bg-white p-3">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Key Insights</p>
+                    <ul className="flex flex-col gap-1.5">
+                      {sessionKeyInsights.map((insight, i) => (
+                        <li key={i} className="flex gap-2 text-sm text-slate-700">
+                          <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-violet-400" />
+                          {insight}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Domain Scores */}
+                {sessionDomainScores && (
+                  <div className="mb-3 rounded-md border border-slate-200 bg-white p-3">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Assessment Completeness (1–5)</p>
+                    <div className="space-y-2">
+                      {([
+                        { label: "Risk Assessment", score: sessionDomainScores.risk, reasons: sessionDomainScores.riskReasons },
+                        { label: "Functioning", score: sessionDomainScores.functioning, reasons: sessionDomainScores.functioningReasons },
+                        { label: "Comorbidity", score: sessionDomainScores.comorbidity, reasons: sessionDomainScores.comorbidityReasons },
+                        { label: "Physical Health", score: sessionDomainScores.physicalHealth, reasons: sessionDomainScores.physicalHealthReasons },
+                        { label: "Illness Type & Trajectory", score: sessionDomainScores.illnessType, reasons: sessionDomainScores.illnessTypeReasons },
+                      ] as { label: string; score: number | null; reasons: string[] }[]).map(({ label, score, reasons }) => (
+                        <div key={label}>
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-slate-600">{label}</span>
+                            <span className={`font-semibold ${score != null && score >= 4 ? "text-green-600" : score != null && score >= 2 ? "text-amber-600" : "text-red-500"}`}>
+                              {score != null ? `${score}/5` : "—"}
+                            </span>
+                          </div>
+                          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                            <div
+                              className={`h-full rounded-full transition-all ${score != null && score >= 4 ? "bg-green-400" : score != null && score >= 2 ? "bg-amber-400" : "bg-red-400"}`}
+                              style={{ width: score != null ? `${(score / 5) * 100}%` : "0%" }}
+                            />
+                          </div>
+                          {reasons.length > 0 && (
+                            <ul className="mt-1 space-y-0.5">
+                              {reasons.map((r, ri) => (
+                                <li key={ri} className="text-[11px] text-slate-500">• {r}</li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Treatment & Next Steps */}
+                {(sessionTreatmentGoals.length > 0 || sessionFirstLineTreatment.length > 0 || sessionSecondLineTreatment.length > 0 || sessionFurtherAssessment.length > 0 || sessionInterventions) && (
+                  <div className="mb-3 rounded-md border border-slate-200 bg-white p-3">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Treatment & Next Steps</p>
+
+                    {sessionInterventions && (
+                      <div className="mb-2">
+                        <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">Recommended Interventions</p>
+                        <p className="text-sm text-slate-700">{sessionInterventions}</p>
+                      </div>
+                    )}
+
+                    {sessionFurtherAssessment.length > 0 && (
+                      <div className="mb-2">
+                        <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">Further Assessment Steps</p>
+                        <ul className="space-y-1">
+                          {sessionFurtherAssessment.map((s, i) => (
+                            <li key={i} className="flex gap-2 text-sm text-slate-700">
+                              <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-sky-400" />
+                              {s}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {sessionTreatmentGoals.length > 0 && (
+                      <div className="mb-2">
+                        <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">Likely Treatment Goals</p>
+                        <ul className="space-y-1">
+                          {sessionTreatmentGoals.map((g, i) => (
+                            <li key={i} className="flex gap-2 text-sm text-slate-700">
+                              <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-teal-400" />
+                              {g}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {sessionFirstLineTreatment.length > 0 && (
+                      <div className="mb-2">
+                        <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">First-Line Treatment Options</p>
+                        <ul className="space-y-1">
+                          {sessionFirstLineTreatment.map((t, i) => (
+                            <li key={i} className="flex gap-2 text-sm text-slate-700">
+                              <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-green-400" />
+                              {t}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {sessionSecondLineTreatment.length > 0 && (
+                      <div className="mb-2">
+                        <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">Second-Line Treatment Options</p>
+                        <ul className="space-y-1">
+                          {sessionSecondLineTreatment.map((t, i) => (
+                            <li key={i} className="flex gap-2 text-sm text-slate-700">
+                              <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-400" />
+                              {t}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Assumptions & Missing Info */}
+                {sessionAssumptions.length > 0 && (
+                  <div className="mb-3 rounded-md border border-slate-200 bg-white p-3">
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Assumptions</p>
+                    <div className="text-sm text-slate-700 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5">
+                      <ReactMarkdown>{sessionAssumptions.map((item) => `- ${item}`).join("\n")}</ReactMarkdown>
+                    </div>
+                  </div>
+                )}
+
+                {sessionMissingInformation.length > 0 && (
+                  <div className="mb-3 rounded-md border border-amber-100 bg-amber-50 p-3">
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-amber-600">Missing Information</p>
+                    <div className="text-sm text-amber-800 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5">
+                      <ReactMarkdown>{sessionMissingInformation.map((item) => `- ${item}`).join("\n")}</ReactMarkdown>
+                    </div>
+                  </div>
+                )}
+
+                {sessionFailureReason && (
+                  <div className="mb-3 rounded-md border border-red-200 bg-red-50 p-3">
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-red-600">Failure Reason</p>
+                    <div className="text-sm text-red-700 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5">
+                      <ReactMarkdown>{sessionFailureReason}</ReactMarkdown>
+                    </div>
+                  </div>
+                )}
+
+                {status === "THINKING" && (
                   <p className="mt-2 text-xs text-slate-500">Polling in progress while session is THINKING...</p>
-                ) : null}
+                )}
               </div>
             </div>
 
