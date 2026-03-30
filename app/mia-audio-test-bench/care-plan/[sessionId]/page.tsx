@@ -82,6 +82,7 @@ type CarePlanResponse = {
   patient_plan?: PatientPlan;
   ooda_reasoning?: OodaReasoning;
   kb_evidence_chunks?: string[];
+  kb_evidence_sources?: string[];
   reasoning_trace_summary?: string;
 };
 
@@ -565,6 +566,7 @@ export default function MiaCarePlanPage() {
   const [patientPlan, setPatientPlan] = useState<PatientPlan | null>(null);
   const [oodaReasoning, setOodaReasoning] = useState<OodaReasoning | null>(null);
   const [kbEvidenceChunks, setKbEvidenceChunks] = useState<string[]>([]);
+  const [kbEvidenceSources, setKbEvidenceSources] = useState<string[]>([]);
   const [reasoningSummary, setReasoningSummary] = useState("");
   const [currentPlanType, setCurrentPlanType] = useState<"bmc" | "mental_health_plan">("mental_health_plan");
 
@@ -626,6 +628,7 @@ export default function MiaCarePlanPage() {
           setPatientPlan(data.patient_plan ?? null);
           setOodaReasoning(data.ooda_reasoning ?? null);
           setKbEvidenceChunks(Array.isArray(data.kb_evidence_chunks) ? data.kb_evidence_chunks : []);
+          setKbEvidenceSources(Array.isArray(data.kb_evidence_sources) ? data.kb_evidence_sources : []);
           setReasoningSummary(typeof data.reasoning_trace_summary === "string" ? data.reasoning_trace_summary : "");
           return;
         }
@@ -648,6 +651,7 @@ export default function MiaCarePlanPage() {
     setPatientPlan(null);
     setOodaReasoning(null);
     setKbEvidenceChunks([]);
+    setKbEvidenceSources([]);
     setReasoningSummary("");
     setCurrentPlanType(planType);
 
@@ -805,12 +809,26 @@ export default function MiaCarePlanPage() {
               BMC Knowledge Bank — Evidence Used
             </div>
             <div className="flex flex-col gap-2">
-              {kbEvidenceChunks.map((chunk, i) => (
-                <div key={i} className="rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3">
-                  <span className="mr-2 font-mono text-[10px] font-bold text-indigo-400">[{i + 1}]</span>
-                  <span className="text-xs leading-relaxed text-indigo-900">{chunk}</span>
-                </div>
-              ))}
+              {kbEvidenceChunks.map((chunk, i) => {
+                if (!chunk?.trim()) return null;
+                const sourceName = kbEvidenceSources[i];
+                return (
+                  <div key={i} className="rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3">
+                    <div className="mb-1 flex items-center gap-2">
+                      <span className="font-mono text-[10px] font-bold text-indigo-400">[{i + 1}]</span>
+                      {sourceName && (
+                        <span
+                          className="rounded bg-indigo-200 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-700 truncate max-w-[280px]"
+                          title={sourceName}
+                        >
+                          {sourceName}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-xs leading-relaxed text-indigo-900">{chunk.trim()}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -831,14 +849,14 @@ export default function MiaCarePlanPage() {
               <div className="text-[10px] font-bold uppercase tracking-widest text-teal-600">Care Plan</div>
               <div className="flex items-center gap-2">
                 {hasContent && (
-                  <button
-                    type="button"
-                    onClick={openEditModal}
+            <button
+              type="button"
+              onClick={openEditModal}
                     disabled={isSubmitting || isPolling}
                     className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50"
-                  >
-                    Request Edit
-                  </button>
+            >
+              Request Edit
+            </button>
                 )}
                 <div className="flex rounded-lg border bg-slate-100 p-1 gap-1">
                   <button
