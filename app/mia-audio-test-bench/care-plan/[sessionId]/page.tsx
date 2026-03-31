@@ -4,6 +4,11 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+/** Safely coerce a value that should be an array — handles [UNKNOWN] strings and null/undefined */
+function toArr<T>(val: T[] | string | null | undefined): T[] {
+  return Array.isArray(val) ? val : [];
+}
+
 type MiaEnvironment = "local" | "staging" | "production";
 type EnvironmentOption = { key: MiaEnvironment; label: string; isConfigured: boolean };
 type EnvironmentResponse = { defaultEnvironment?: MiaEnvironment; environments?: EnvironmentOption[] };
@@ -281,11 +286,11 @@ function ClinicianBMCView({ plan }: { plan: ClinicianPlanBMC }) {
       </div>
 
       {/* Short-term aims */}
-      {plan.shortTermAims && plan.shortTermAims.length > 0 && (
+      {toArr(plan.shortTermAims).length > 0 && (
         <div>
           <SectionLabel>Short-term Aims</SectionLabel>
           <div className="flex flex-col gap-3">
-            {plan.shortTermAims.map((aim, i) => (
+            {toArr(plan.shortTermAims).map((aim, i) => (
               <div key={i} className="overflow-hidden rounded-xl border">
                 <div className="flex items-center justify-between border-b bg-slate-50 px-4 py-3">
                   <div className="flex items-center gap-2">
@@ -302,7 +307,7 @@ function ClinicianBMCView({ plan }: { plan: ClinicianPlanBMC }) {
                   <div className="p-4">
                     <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-teal-600">Interventions</div>
                     <ul className="flex flex-col gap-2">
-                      {(aim.interventions ?? []).map((iv, j) => (
+                      {toArr(aim.interventions).map((iv, j) => (
                         <li key={j} className="text-xs leading-relaxed text-slate-500">
                           {iv.name && <strong className="text-slate-700">{iv.name}</strong>}
                           {iv.name && iv.description ? " — " : ""}
@@ -314,7 +319,7 @@ function ClinicianBMCView({ plan }: { plan: ClinicianPlanBMC }) {
                   <div className="p-4">
                     <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-teal-600">Progress Monitoring</div>
                     <ul className="flex flex-col gap-1">
-                      {(aim.progressMonitoring ?? []).map((m, j) => (
+                      {toArr(aim.progressMonitoring).map((m, j) => (
                         <li key={j} className="text-xs leading-relaxed text-slate-500">{m}</li>
                       ))}
                     </ul>
@@ -322,7 +327,7 @@ function ClinicianBMCView({ plan }: { plan: ClinicianPlanBMC }) {
                   <div className="p-4">
                     <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-teal-600">Next Steps</div>
                     <ul className="flex flex-col gap-1">
-                      {(aim.nextSteps ?? []).map((s, j) => (
+                      {toArr(aim.nextSteps).map((s, j) => (
                         <li key={j} className="text-xs leading-relaxed text-slate-500">{s}</li>
                       ))}
                     </ul>
@@ -336,21 +341,21 @@ function ClinicianBMCView({ plan }: { plan: ClinicianPlanBMC }) {
 
       {/* Long-term aims + Information gaps */}
       <div className="grid gap-4 md:grid-cols-2">
-        {plan.longTermAims && plan.longTermAims.length > 0 && (
+        {toArr(plan.longTermAims).length > 0 && (
           <div className="rounded-lg border bg-slate-50 p-4">
             <SectionLabel>Long-term Aims</SectionLabel>
             <ul className="flex flex-col gap-1">
-              {plan.longTermAims.map((a, i) => (
+              {toArr(plan.longTermAims).map((a, i) => (
                 <li key={i} className="flex gap-2 text-sm text-slate-600"><span className="text-teal-500 font-bold">—</span>{a}</li>
               ))}
             </ul>
           </div>
         )}
-        {plan.informationGaps && plan.informationGaps.length > 0 && (
+        {toArr(plan.informationGaps).length > 0 && (
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
             <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-amber-700">Flagged — information gaps</div>
             <ul className="flex flex-col gap-1">
-              {plan.informationGaps.map((g, i) => (
+              {toArr(plan.informationGaps).map((g, i) => (
                 <li key={i} className="flex gap-2 text-sm text-amber-800"><span className="font-bold">—</span>{g}</li>
               ))}
             </ul>
@@ -361,103 +366,206 @@ function ClinicianBMCView({ plan }: { plan: ClinicianPlanBMC }) {
   );
 }
 
+/** A single labelled row in the form table */
+function FormRow({ label, value, hint, children, highlight }: {
+  label: string;
+  value?: string | null;
+  hint?: string;
+  children?: React.ReactNode;
+  highlight?: "risk" | "amber";
+}) {
+  const content = children ?? (value && value !== "unknown" ? value : null);
+  const bgLabel = highlight === "risk" ? "bg-red-50" : highlight === "amber" ? "bg-amber-50" : "bg-slate-50";
+  const bgContent = highlight === "risk" ? "bg-red-50/40" : highlight === "amber" ? "bg-amber-50/40" : "bg-white";
+  const textLabel = highlight === "risk" ? "text-red-700" : highlight === "amber" ? "text-amber-700" : "text-slate-600";
+  return (
+    <div className="flex border-b border-slate-200 last:border-0 min-h-[2.5rem]">
+      <div className={`w-56 flex-shrink-0 px-3 py-2.5 ${bgLabel}`}>
+        <div className={`text-[11px] font-semibold leading-snug ${textLabel}`}>{label}</div>
+        {hint && <div className="mt-0.5 text-[10px] text-slate-400 italic leading-tight">{hint}</div>}
+      </div>
+      <div className={`flex-1 px-3 py-2.5 text-[12px] leading-relaxed text-slate-800 ${bgContent}`}>
+        {content ?? <span className="text-slate-300 italic">—</span>}
+      </div>
+    </div>
+  );
+}
+
+/** Section header bar */
+function FormSection({ title }: { title: string }) {
+  return (
+    <div className="border-b border-slate-300 bg-slate-700 px-3 py-2">
+      <span className="text-[11px] font-bold uppercase tracking-widest text-white">{title}</span>
+    </div>
+  );
+}
+
 function ClinicianGPView({ plan }: { plan: ClinicianPlanGP }) {
   const assess = plan.patientWellbeingAssessment;
   const mgmt = plan.personalManagementPlan;
   const crisis = plan.crisisPlan;
-  const selectedMbs = Object.entries(plan.mbsItems ?? {})
-    .filter(([, v]) => v)
-    .map(([k]) => k)
-    .join(", ");
+  const info = plan.clientInformation;
+
+  const selectedMbs = Object.entries(plan.mbsItems ?? {}).filter(([, v]) => v).map(([k]) => k);
+
+  const mseFields = assess?.mentalStateExamination
+    ? Object.entries(assess.mentalStateExamination)
+        .filter(([, v]) => v && v !== "unknown")
+        .map(([k, v]) => `${k}: ${v}`)
+        .join("  ·  ")
+    : null;
+
+  const historyLines = [
+    assess?.patientHistory?.medicalBiological && `Medical/Biological: ${assess.patientHistory.medicalBiological}`,
+    assess?.patientHistory?.mentalHealthPsychological && `Mental Health/Psychological: ${assess.patientHistory.mentalHealthPsychological}`,
+    assess?.patientHistory?.socialHistory && `Social: ${assess.patientHistory.socialHistory}`,
+  ].filter(Boolean).join("\n\n");
+
+  const medsLines = [
+    assess?.medicationsAndPsychotropics?.currentMedications && `Current: ${assess.medicationsAndPsychotropics.currentMedications}`,
+    assess?.medicationsAndPsychotropics?.previousMedications && `Previous: ${assess.medicationsAndPsychotropics.previousMedications}`,
+  ].filter(Boolean).join("\n\n");
+
+  const formulationLines = assess?.caseFormulation ? [
+    assess.caseFormulation.predisposing && `Predisposing: ${assess.caseFormulation.predisposing}`,
+    assess.caseFormulation.precipitating && `Precipitating: ${assess.caseFormulation.precipitating}`,
+    assess.caseFormulation.perpetuating && `Perpetuating: ${assess.caseFormulation.perpetuating}`,
+    assess.caseFormulation.protective && `Protective: ${assess.caseFormulation.protective}`,
+  ].filter(Boolean).join("\n\n") : null;
+
+  const crisisLines = crisis ? [
+    crisis.emergencyContacts && `Emergency contacts: ${crisis.emergencyContacts}`,
+    crisis.safetyPlan && `Safety plan: ${crisis.safetyPlan}`,
+    crisis.followUp && `Follow-up: ${crisis.followUp}`,
+  ].filter(Boolean).join("\n\n") : null;
+
   return (
-    <div className="flex flex-col gap-5">
-      {/* Client info + MBS */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {plan.clientInformation?.name && plan.clientInformation.name !== "unknown" && (
-          <div className="rounded-lg border bg-slate-50 px-4 py-3">
-            <div className="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">Name</div>
-            <div className="text-sm font-semibold text-slate-800">{plan.clientInformation.name}</div>
-          </div>
-        )}
-        {plan.clientInformation?.age && plan.clientInformation.age !== "unknown" && (
-          <div className="rounded-lg border bg-slate-50 px-4 py-3">
-            <div className="mb-1 text-[10px] font-bold uppercase tracking-widest text-slate-400">Age</div>
-            <div className="text-sm font-semibold text-slate-800">{plan.clientInformation.age}</div>
-          </div>
-        )}
-        {selectedMbs && (
-          <div className="rounded-lg border bg-teal-50 px-4 py-3 md:col-span-2">
-            <div className="mb-1 text-[10px] font-bold uppercase tracking-widest text-teal-600">MBS Items</div>
-            <div className="text-sm font-semibold text-teal-800">{selectedMbs}</div>
-          </div>
-        )}
+    <div className="overflow-hidden rounded-lg border border-slate-300 bg-white text-[12px] shadow-sm">
+      {/* ── Document header ── */}
+      <div className="border-b border-slate-300 bg-slate-800 px-4 py-3">
+        <div className="text-xs font-bold uppercase tracking-widest text-white">
+          Patient Wellbeing Assessment and Management Plan: Minimal Requirements
+        </div>
+        <div className="mt-0.5 text-[10px] text-slate-300">
+          GP Mental Health Treatment Plan (MHTP)
+          {selectedMbs.length > 0 && (
+            <span className="ml-3 rounded bg-teal-700 px-2 py-0.5 font-semibold text-white">
+              MBS {selectedMbs.join(" · ")}
+            </span>
+          )}
+        </div>
       </div>
 
-      {assess && (
+      {/* ── Contact and demographic details ── */}
+      <FormSection title="Contact and demographic details" />
+      <FormRow label="Patient name" value={info?.name} />
+      <FormRow label="Age / Gender" value={[info?.age, info?.gender].filter(Boolean).join(" · ") || null} />
+
+      {/* ── Patient Wellbeing Assessment ── */}
+      <FormSection title="Patient wellbeing assessment" />
+      <FormRow
+        label="Reasons for presenting"
+        hint="Current mental health issues, reason for seeking help"
+        value={assess?.reasonsForPresenting}
+      />
+      <FormRow
+        label="Patient history"
+        hint="Medical/biological, mental health/psychological, social"
+        value={historyLines || null}
+      >
+        {historyLines ? (
+          <div className="flex flex-col gap-2 whitespace-pre-wrap">{historyLines}</div>
+        ) : null}
+      </FormRow>
+      <FormRow
+        label="Medications and psychotropics"
+        hint="Current medications, date commenced, previous medications"
+        value={medsLines || null}
+      />
+      <FormRow
+        label="Mental state examination"
+        hint="Appearance, cognition, thought process, thought content, attention"
+        value={mseFields}
+      />
+      <FormRow
+        label="Risk assessment"
+        hint="Self-harm, harm to others, ideation, intent, plan, means"
+        value={assess?.riskAssessment}
+        highlight="risk"
+      />
+      <FormRow
+        label="Assessment / outcome tool used"
+        value={assess?.assessmentOutcomeToolUsed}
+      />
+      <FormRow
+        label="Assessment / outcome results"
+        value={assess?.assessmentOutcomeResults}
+      />
+      <FormRow
+        label="Provisional diagnosis"
+        value={assess?.provisionalDiagnosis}
+      />
+      <FormRow
+        label="Case formulation"
+        hint="Predisposing · Precipitating · Perpetuating · Protective"
+        value={formulationLines}
+      >
+        {formulationLines ? (
+          <div className="flex flex-col gap-2 whitespace-pre-wrap">{formulationLines}</div>
+        ) : null}
+      </FormRow>
+
+      {/* ── Personal Management Plan ── */}
+      <FormSection title="Personal management plan" />
+      <FormRow
+        label="Identified issues / problems"
+        value={mgmt?.identifiedIssues}
+      />
+      <FormRow
+        label="Goals"
+        hint="Short and longer-term goals, made in collaboration with the patient"
+        value={mgmt?.goals}
+      />
+      <FormRow
+        label="Treatments and interventions"
+        hint="Actions and support services required to achieve patient goals"
+        value={mgmt?.treatmentsAndInterventions}
+      />
+      <FormRow
+        label="Referrals"
+        hint="Support services, culturally appropriate local groups, other providers"
+        value={mgmt?.referrals}
+      />
+      <FormRow
+        label="Intervention / relapse-prevention plan"
+        hint="Arrangements to intervene early if condition deteriorates"
+        value={mgmt?.interventionRelapsePreventionPlan}
+      />
+
+      {/* ── Crisis plan ── */}
+      {crisisLines && (
         <>
-          <div className="grid gap-4 md:grid-cols-2">
-            <InfoField label="Reasons for Presenting" value={assess.reasonsForPresenting} />
-            <InfoField label="Provisional Diagnosis" value={assess.provisionalDiagnosis} />
-          </div>
-          <div className="grid gap-4 md:grid-cols-3">
-            <InfoField label="Medical / Biological History" value={assess.patientHistory?.medicalBiological} />
-            <InfoField label="Mental Health History" value={assess.patientHistory?.mentalHealthPsychological} />
-            <InfoField label="Social History" value={assess.patientHistory?.socialHistory} />
-          </div>
-          {assess.riskAssessment && assess.riskAssessment !== "unknown" && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-              <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-red-700">⚠ Risk Assessment</div>
-              <p className="text-sm leading-relaxed text-red-900">{assess.riskAssessment}</p>
-            </div>
-          )}
-          {assess.caseFormulation && (
-            <div>
-              <SectionLabel>Case Formulation</SectionLabel>
-              <div className="grid gap-3 md:grid-cols-2">
-                <InfoField label="Predisposing" value={assess.caseFormulation.predisposing} />
-                <InfoField label="Precipitating" value={assess.caseFormulation.precipitating} />
-                <InfoField label="Perpetuating" value={assess.caseFormulation.perpetuating} />
-                <InfoField label="Protective" value={assess.caseFormulation.protective} />
-              </div>
-            </div>
-          )}
+          <FormSection title="Crisis and safety plan" />
+          <FormRow label="Crisis contacts and plan" value={crisisLines} highlight="risk">
+            <div className="flex flex-col gap-2 whitespace-pre-wrap text-red-800">{crisisLines}</div>
+          </FormRow>
         </>
       )}
 
-      {mgmt && (
-        <div>
-          <SectionLabel>Personal Management Plan</SectionLabel>
-          <div className="flex flex-col gap-3">
-            <InfoField label="Identified Issues" value={mgmt.identifiedIssues} />
-            <InfoField label="Goals" value={mgmt.goals} />
-            <InfoField label="Treatments & Interventions" value={mgmt.treatmentsAndInterventions} />
-            <InfoField label="Referrals" value={mgmt.referrals} />
-            <InfoField label="Relapse Prevention" value={mgmt.interventionRelapsePreventionPlan} />
-          </div>
-        </div>
+      {/* ── Information gaps ── */}
+      {toArr(plan.informationGaps).length > 0 && (
+        <>
+          <FormSection title="Flagged — information gaps (requires clinician review)" />
+          {toArr(plan.informationGaps).map((g, i) => (
+            <FormRow key={i} label={`Gap ${i + 1}`} value={g} highlight="amber" />
+          ))}
+        </>
       )}
 
-      {crisis && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-          <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-red-700">⚠ Crisis Plan</div>
-          <div className="grid gap-3 md:grid-cols-3">
-            <InfoField label="Emergency Contacts" value={crisis.emergencyContacts} />
-            <InfoField label="Safety Plan" value={crisis.safetyPlan} />
-            <InfoField label="Follow-up" value={crisis.followUp} />
-          </div>
-        </div>
-      )}
-
-      {plan.informationGaps && plan.informationGaps.length > 0 && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-          <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-amber-700">Flagged — information gaps</div>
-          <ul className="flex flex-col gap-1">
-            {plan.informationGaps.map((g, i) => (
-              <li key={i} className="flex gap-2 text-sm text-amber-800"><span className="font-bold">—</span>{g}</li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {/* ── Footer ── */}
+      <div className="border-t border-slate-200 bg-slate-50 px-4 py-2 text-[10px] text-slate-400 italic">
+        This plan was drafted by MIA based on the session transcript. It has not been finalised until reviewed and approved by the treating clinician.
+      </div>
     </div>
   );
 }
@@ -472,11 +580,11 @@ function PatientView({ plan }: { plan: PatientPlan }) {
         </div>
       )}
 
-      {plan.priorityAreas && plan.priorityAreas.length > 0 && (
+      {toArr(plan.priorityAreas).length > 0 && (
         <div>
           <SectionLabel>What matters most right now</SectionLabel>
           <div className="flex flex-col gap-2">
-            {plan.priorityAreas.map((area, i) => (
+            {toArr(plan.priorityAreas).map((area, i) => (
               <div key={i} className="flex items-center gap-3 rounded-lg border bg-slate-50 px-4 py-3">
                 <div className={`h-2.5 w-2.5 flex-shrink-0 rounded-full ${urgencyDot(area.urgency)}`} />
                 <div>
@@ -489,11 +597,11 @@ function PatientView({ plan }: { plan: PatientPlan }) {
         </div>
       )}
 
-      {plan.goals && plan.goals.length > 0 && (
+      {toArr(plan.goals).length > 0 && (
         <div>
           <SectionLabel>Your goals</SectionLabel>
           <div className="flex flex-col gap-2">
-            {plan.goals.map((goal, i) => (
+            {toArr(plan.goals).map((goal, i) => (
               <div key={i} className="overflow-hidden rounded-xl border">
                 <div className="border-b bg-slate-50 px-4 py-3">
                   <span className="text-sm font-bold text-slate-800">Goal {i + 1} · {goal.title}</span>
@@ -505,11 +613,11 @@ function PatientView({ plan }: { plan: PatientPlan }) {
         </div>
       )}
 
-      {plan.howWeGetThere && plan.howWeGetThere.length > 0 && (
+      {toArr(plan.howWeGetThere).length > 0 && (
         <div>
           <SectionLabel>How we&apos;ll get there</SectionLabel>
           <div className="flex flex-col gap-2">
-            {plan.howWeGetThere.map((item, i) => (
+            {toArr(plan.howWeGetThere).map((item, i) => (
               <div key={i} className="rounded-lg border bg-slate-50 px-4 py-3 text-sm text-slate-700">
                 <strong>{item.approach}</strong>
                 {item.description ? `: ${item.description}` : ""}
@@ -526,11 +634,11 @@ function PatientView({ plan }: { plan: PatientPlan }) {
         </div>
       )}
 
-      {plan.whatComesNext && plan.whatComesNext.length > 0 && (
+      {toArr(plan.whatComesNext).length > 0 && (
         <div className="rounded-lg border bg-slate-50 p-4">
           <SectionLabel>What comes next</SectionLabel>
           <ul className="flex flex-col gap-2">
-            {plan.whatComesNext.map((item, i) => (
+            {toArr(plan.whatComesNext).map((item, i) => (
               <li key={i} className="flex gap-2 text-sm text-slate-700">
                 <span className="font-bold text-teal-500">→</span>{item}
               </li>
@@ -562,7 +670,7 @@ export default function MiaCarePlanPage() {
 
   const [planId, setPlanId] = useState("");
   const [planStatus, setPlanStatus] = useState("IDLE");
-  const [clinicianPlan, setClinicianPlan] = useState<CarePlanResponse["clinician_plan"]>(null);
+  const [clinicianPlan, setClinicianPlan] = useState<CarePlanResponse["clinician_plan"]>(undefined);
   const [patientPlan, setPatientPlan] = useState<PatientPlan | null>(null);
   const [oodaReasoning, setOodaReasoning] = useState<OodaReasoning | null>(null);
   const [kbEvidenceChunks, setKbEvidenceChunks] = useState<string[]>([]);
@@ -624,7 +732,7 @@ export default function MiaCarePlanPage() {
         setPlanStatus(nextStatus);
 
         if (nextStatus === "READY") {
-          setClinicianPlan(data.clinician_plan ?? null);
+          setClinicianPlan(data.clinician_plan ?? undefined);
           setPatientPlan(data.patient_plan ?? null);
           setOodaReasoning(data.ooda_reasoning ?? null);
           setKbEvidenceChunks(Array.isArray(data.kb_evidence_chunks) ? data.kb_evidence_chunks : []);
@@ -647,7 +755,7 @@ export default function MiaCarePlanPage() {
     if (!sessionId) { setErrorMessage("Missing session id in route."); return; }
     setIsSubmitting(true);
     setErrorMessage("");
-    setClinicianPlan(null);
+    setClinicianPlan(undefined);
     setPatientPlan(null);
     setOodaReasoning(null);
     setKbEvidenceChunks([]);
@@ -746,7 +854,11 @@ export default function MiaCarePlanPage() {
               Plan Type
               <select
                 value={planType}
-                onChange={(e) => setPlanType(e.target.value as "bmc" | "mental_health_plan")}
+                onChange={(e) => {
+                  const t = e.target.value as "bmc" | "mental_health_plan";
+                  setPlanType(t);
+                  if (t === "mental_health_plan") setActiveView("clinician");
+                }}
                 className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
               >
                 <option value="mental_health_plan">GP Mental Health Plan</option>
@@ -858,33 +970,37 @@ export default function MiaCarePlanPage() {
               Request Edit
             </button>
                 )}
-                <div className="flex rounded-lg border bg-slate-100 p-1 gap-1">
-                  <button
-                    type="button"
-                    onClick={() => setActiveView("clinician")}
-                    className={`rounded-md px-4 py-1.5 text-xs font-bold transition-all ${
-                      activeView === "clinician" ? "bg-slate-800 text-white shadow-sm" : "text-slate-500"
-                    }`}
-                  >
-                    Clinician
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveView("patient")}
-                    className={`rounded-md px-4 py-1.5 text-xs font-bold transition-all ${
-                      activeView === "patient" ? "bg-slate-800 text-white shadow-sm" : "text-slate-500"
-                    }`}
-                  >
-                    Patient
-                  </button>
-                </div>
+                {currentPlanType === "bmc" && (
+                  <div className="flex rounded-lg border bg-slate-100 p-1 gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setActiveView("clinician")}
+                      className={`rounded-md px-4 py-1.5 text-xs font-bold transition-all ${
+                        activeView === "clinician" ? "bg-slate-800 text-white shadow-sm" : "text-slate-500"
+                      }`}
+                    >
+                      Clinician
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveView("patient")}
+                      className={`rounded-md px-4 py-1.5 text-xs font-bold transition-all ${
+                        activeView === "patient" ? "bg-slate-800 text-white shadow-sm" : "text-slate-500"
+                      }`}
+                    >
+                      Patient
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
             <Card>
               <div className="mb-4 flex items-center justify-between border-b pb-4">
                 <span className="text-sm font-bold text-slate-700">
-                  {activeView === "clinician" ? "Care Planning Report" : "Your Care Plan"}
+                  {currentPlanType === "mental_health_plan"
+                    ? "GP Mental Health Treatment Plan"
+                    : activeView === "clinician" ? "Care Planning Report" : "Your Care Plan"}
                   {clinicianPlan?.clientInformation?.name ? ` — ${clinicianPlan.clientInformation.name}` : ""}
                 </span>
                 <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
@@ -892,15 +1008,16 @@ export default function MiaCarePlanPage() {
                 </span>
               </div>
 
-              {activeView === "clinician" && clinicianPlan && (
-                currentPlanType === "bmc"
-                  ? <ClinicianBMCView plan={clinicianPlan as ClinicianPlanBMC} />
-                  : <ClinicianGPView plan={clinicianPlan as ClinicianPlanGP} />
+              {currentPlanType === "mental_health_plan" && clinicianPlan && (
+                <ClinicianGPView plan={clinicianPlan as ClinicianPlanGP} />
               )}
-              {activeView === "patient" && patientPlan && (
+              {currentPlanType === "bmc" && activeView === "clinician" && clinicianPlan && (
+                <ClinicianBMCView plan={clinicianPlan as ClinicianPlanBMC} />
+              )}
+              {currentPlanType === "bmc" && activeView === "patient" && patientPlan && (
                 <PatientView plan={patientPlan} />
               )}
-              {activeView === "patient" && !patientPlan && (
+              {currentPlanType === "bmc" && activeView === "patient" && !patientPlan && (
                 <p className="text-sm text-slate-400">Patient plan not available.</p>
               )}
 
