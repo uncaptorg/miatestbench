@@ -22,11 +22,10 @@
 ```
 ClientContext
 ├── demographics: ClientDemographics          (required, exactly 1)
-├── assessments:  list[ClientAssessment]      (optional, max 1)
+├── assessments:  list[ClientAssessment]      (optional, max 2)
 │   └── questionnaire: QuestionnaireInfo
 │       └── question_sets: list[QuestionSet]  (max 20)
-│           ├── score: AssessmentScore
-│           └── answers: list[QuestionAnswer] (max 80)
+│           └── score: AssessmentScore
 ├── events:  list[ClinicalEvent]              (optional, max 10)
 ├── notes:   list[ClinicalNote]               (optional, max 10)
 └── goals:   list[ClientGoal]                 (optional, max 10)
@@ -64,6 +63,22 @@ A complete example covering all optional fields:
   },
   "assessments": [
     {
+      "completed_at": "2025-09-01T09:00:00Z",
+      "questionnaire": {
+        "name": "K10",
+        "question_sets": [
+          {
+            "name": "Psychological Distress",
+            "health_domain_name": "Kessler 10 Plus",
+            "score": {
+              "raw_value": 22,
+              "range_label": "Moderate"
+            }
+          }
+        ]
+      }
+    },
+    {
       "completed_at": "2026-03-01T09:00:00Z",
       "questionnaire": {
         "name": "K10",
@@ -74,17 +89,7 @@ A complete example covering all optional fields:
             "score": {
               "raw_value": 28,
               "range_label": "High"
-            },
-            "answers": [
-              {
-                "question": "In the past 4 weeks, how often did you feel tired out for no good reason?",
-                "answer": "Most of the time"
-              },
-              {
-                "question": "In the past 4 weeks, how often did you feel nervous?",
-                "answer": "Some of the time"
-              }
-            ]
+            }
           }
         ]
       }
@@ -129,7 +134,7 @@ A complete example covering all optional fields:
 ```python
 class ClientContext(BaseModel):
     demographics: ClientDemographics
-    assessments: list[ClientAssessment] = Field(default_factory=list, max_length=1)
+    assessments: list[ClientAssessment] = Field(default_factory=list, max_length=2)
     events:      list[ClinicalEvent]    = Field(default_factory=list, max_length=10)
     notes:       list[ClinicalNote]     = Field(default_factory=list, max_length=10)
     goals:       list[ClientGoal]       = Field(default_factory=list, max_length=10)
@@ -140,10 +145,18 @@ class ClientContext(BaseModel):
 | Field          | Type                     | Required | Constraint      |
 | -------------- | ------------------------ | -------- | --------------- |
 | `demographics` | `ClientDemographics`     | ✅       | See below       |
-| `assessments`  | `list[ClientAssessment]` | No       | `max_length=1`  |
+| `assessments`  | `list[ClientAssessment]` | No       | `max_length=2` — see note below                                        |
 | `events`       | `list[ClinicalEvent]`    | No       | `max_length=10` |
 | `notes`        | `list[ClinicalNote]`     | No       | `max_length=10` |
 | `goals`        | `list[ClientGoal]`       | No       | `max_length=10` |
+
+> **Note — Assessment pairing convention**
+>
+> Supply **at most 2** assessments. When the client has taken the same instrument more than once, provide:
+> 1. The **first (baseline)** assessment — establishes the starting point for illness trajectory.
+> 2. The **most recent** assessment — reflects the current clinical picture.
+>
+> If only one administration exists, supply that single assessment. Do **not** pad the list with duplicates or intermediate administrations,
 
 ---
 
@@ -186,27 +199,15 @@ A single score line within an assessment question set.
 
 ---
 
-## `QuestionAnswer`
-
-A single question-and-answer pair inside a `QuestionSet`.
-
-| Field      | Type  | Required | Constraint                       |
-| ---------- | ----- | -------- | -------------------------------- |
-| `question` | `str` | ✅       | `min_length=1`, `max_length=200` |
-| `answer`   | `str` | ✅       | `min_length=1`, `max_length=200` |
-
----
-
 ## `QuestionSet`
 
 A grouped block of Q&A items with a combined score.
 
-| Field                | Type                   | Required | Constraint                                       |
-| -------------------- | ---------------------- | -------- | ------------------------------------------------ |
-| `name`               | `str`                  | ✅       | `min_length=1`, `max_length=50`                  |
-| `health_domain_name` | `HealthDomainName`     | ✅       | Enum — see [HealthDomainName](#healthdomainname) |
-| `score`              | `AssessmentScore`      | ✅       | See [`AssessmentScore`](#assessmentscore)        |
-| `answers`            | `list[QuestionAnswer]` | ✅       | `max_length=80`                                  |
+| Field                | Type                       | Required | Constraint                                       |
+| -------------------- | -------------------------- | -------- | ------------------------------------------------ |
+| `name`               | `str`                      | ✅       | `min_length=1`, `max_length=50`                  |
+| `health_domain_name` | `HealthDomainName \| None` | No       | Enum — see [HealthDomainName](#healthdomainname) |
+| `score`              | `AssessmentScore`          | ✅       | See [`AssessmentScore`](#assessmentscore)        |
 
 ---
 
@@ -229,6 +230,17 @@ A completed clinical assessment wrapper.
 | --------------- | ------------------- | -------- | --------------------------- |
 | `questionnaire` | `QuestionnaireInfo` | ✅       | See above                   |
 | `completed_at`  | `datetime`          | ✅       | Any valid ISO-8601 datetime |
+
+> **Note — Assessment pairing convention**
+>
+> `ClientContext.assessments` accepts **1 or 2** items only:
+>
+> | Slot | Which assessment to supply |
+> | ---- | -------------------------- |
+> | First item | The **earliest / baseline** administration (`completed_at` is oldest) |
+> | Second item *(optional)* | The **most recent** administration (`completed_at` is newest) |
+>
+> Supplying a single item is valid when only one administration exists. The pair is used by MIA to track **illness trajectory** — how the client's scores have changed from baseline to the present.
 
 ---
 
@@ -291,6 +303,12 @@ A treatment or recovery goal for the client.
 ---
 
 ## Enum Reference
+
+> **Note — Unrecognised enum values**
+>
+> If a supplied enum value does not match any member of its enum, the API **logs a warning internally and silently ignores the field** (treats it as `null`). The request is **not** rejected. This applies to all optional enum fields across `ClientContext` (e.g. `gender`, `employment_status`, `resolution_option`, `health_domain_name`, etc.).
+>
+> Use the exact string values listed below — they are **case-sensitive**.
 
 ### `Gender`
 
@@ -514,10 +532,8 @@ A large controlled vocabulary of clinical measurement domains. Examples include:
 | `ClientDemographics` | `model_validator(mode="after")` — `validate_postcode`         | State in allowed set for country; postcode matches country regex |
 | `AssessmentScore`    | `ge=1, le=1000` on `raw_value`                                | Score between 1 and 1 000                                        |
 | `AssessmentScore`    | `max_length=40` on `range_label`                              | Label at most 40 chars                                           |
-| `QuestionAnswer`     | `min_length=1, max_length=200` on both fields                 | Non-empty, capped question and answer text                       |
-| `QuestionSet`        | `max_length=80` on `answers`                                  | At most 80 answers per set                                       |
 | `QuestionnaireInfo`  | `max_length=20` on `question_sets`                            | At most 20 question sets per questionnaire                       |
-| `ClientContext`      | `max_length=1` on `assessments`                               | At most 1 assessment per context                                 |
+| `ClientContext`      | `max_length=2` on `assessments`                               | At most 2 assessments per context (first + most recent)          |
 | `ClinicalEvent`      | `min_length=1, max_length=500` on `title`                     | Non-empty, capped title                                          |
 | `ClinicalEvent`      | `model_validator(mode="after")` — `validate_event_timestamps` | `resolved_at >= created_at`                                      |
 | `ClinicalNote`       | `max_length=1000` on `text`                                   | Note text at most 1 000 chars                                    |
@@ -538,6 +554,6 @@ A large controlled vocabulary of clinical measurement domains. Examples include:
 | `Invalid state 'XYZ' for country 'AU'`                    | Unrecognised state string       | Use one of the 8 Australian state codes, e.g. `"NSW"`. Case is normalised automatically.                     |
 | `Invalid postcode '123' for country 'AU'`                 | Wrong postcode format           | Australian postcodes must be exactly 4 digits.                                                               |
 | `resolved_at must be greater than or equal to created_at` | Event timestamps inverted       | Ensure `resolved_at` is after `created_at`.                                                                  |
-| `List should have at most 1 item` on `assessments`        | Too many assessments            | Supply at most 1 `ClientAssessment` object.                                                                  |
+| `List should have at most 2 items` on `assessments`       | Too many assessments            | Supply at most 2 `ClientAssessment` objects. Provide the **first** (baseline) and **most recent** assessment. |
 | `Extra inputs are not permitted`                          | Unknown field on a strict model | Remove the unrecognised field. Affects `ClientContext`, `ClientDemographics`, `ClinicalEvent`, `ClientGoal`. |
 | `raw_value: Input should be greater than or equal to 1`   | Score below minimum             | Assessment scores must be ≥ 1.                                                                               |

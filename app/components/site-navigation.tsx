@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const NAV_ITEMS = [
   { label: "Home", href: "/" },
   { label: "MIA Diagram", href: "/mia-api" },
+  { label: "Audio Use Case", href: "/audio-use-case" },
   { label: "Audio Test Bench", href: "/mia-audio-test-bench" },
 ];
 
