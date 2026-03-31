@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Mic, Send, Radio, CheckCircle, FileSearch, Edit3, ClipboardList, RefreshCw, FileText } from "lucide-react";
+import { Mic, Send, Radio, CheckCircle, FileSearch, Edit3, ClipboardList, RefreshCw, FileText, Download } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 const getMermaid = () =>
@@ -152,6 +152,33 @@ const phases: Phase[] = [
     iconColor: "text-rose-500",
   },
 ];
+
+function exportToPng(ref: React.RefObject<HTMLDivElement | null>, filename: string) {
+  const svgEl = ref.current?.querySelector("svg");
+  if (!svgEl) return;
+
+  const svgData = new XMLSerializer().serializeToString(svgEl);
+  // Use a data URI (not a blob URL) so the canvas is never tainted by
+  // cross-origin resources embedded in the SVG (e.g. CDN-loaded fonts).
+  const dataUri = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgData)}`;
+  const img = new Image();
+  img.onload = () => {
+    const scale = 2;
+    const canvas = document.createElement("canvas");
+    canvas.width = img.width * scale;
+    canvas.height = img.height * scale;
+    const ctx = canvas.getContext("2d")!;
+    ctx.scale(scale, scale);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, img.width, img.height);
+    ctx.drawImage(img, 0, 0);
+    const a = document.createElement("a");
+    a.download = filename;
+    a.href = canvas.toDataURL("image/png");
+    a.click();
+  };
+  img.src = dataUri;
+}
 
 export default function AudioUseCasePage() {
   const [activeTab, setActiveTab] = useState<"flow" | "text-flow" | "phases">("flow");
@@ -359,12 +386,23 @@ export default function AudioUseCasePage() {
               <span className="text-xs font-semibold uppercase tracking-widest text-slate-400">
                 Audio Session — Full Flow
               </span>
-              {(isRendering || !mermaidLoaded) && (
-                <span className="flex items-center gap-1.5 text-xs text-indigo-500 font-medium">
-                  <RefreshCw size={12} className="animate-spin" />
-                  Rendering…
-                </span>
-              )}
+              <div className="flex items-center gap-3">
+                {(isRendering || !mermaidLoaded) && (
+                  <span className="flex items-center gap-1.5 text-xs text-indigo-500 font-medium">
+                    <RefreshCw size={12} className="animate-spin" />
+                    Rendering…
+                  </span>
+                )}
+                {!isRendering && mermaidLoaded && (
+                  <button
+                    onClick={() => exportToPng(diagramRef, "audio-flow.png")}
+                    className="flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-500 shadow-sm hover:border-indigo-300 hover:text-indigo-600 transition-colors"
+                  >
+                    <Download size={12} />
+                    Export PNG
+                  </button>
+                )}
+              </div>
             </div>
             <div className="relative min-h-[560px] flex items-center justify-center p-6">
               {(isRendering || !mermaidLoaded) && (
@@ -390,12 +428,23 @@ export default function AudioUseCasePage() {
                   Text Mode — Session &amp; Care Plan Flow
                 </span>
               </div>
-              {(isRenderingText || !mermaidLoaded) && (
-                <span className="flex items-center gap-1.5 text-xs text-sky-500 font-medium">
-                  <RefreshCw size={12} className="animate-spin" />
-                  Rendering…
-                </span>
-              )}
+              <div className="flex items-center gap-3">
+                {(isRenderingText || !mermaidLoaded) && (
+                  <span className="flex items-center gap-1.5 text-xs text-sky-500 font-medium">
+                    <RefreshCw size={12} className="animate-spin" />
+                    Rendering…
+                  </span>
+                )}
+                {!isRenderingText && mermaidLoaded && (
+                  <button
+                    onClick={() => exportToPng(textDiagramRef, "text-mode-flow.png")}
+                    className="flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-500 shadow-sm hover:border-sky-300 hover:text-sky-600 transition-colors"
+                  >
+                    <Download size={12} />
+                    Export PNG
+                  </button>
+                )}
+              </div>
             </div>
             <div className="relative min-h-[480px] flex items-center justify-center p-6">
               {(isRenderingText || !mermaidLoaded) && (
