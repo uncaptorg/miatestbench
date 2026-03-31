@@ -4,6 +4,11 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+/** Safely coerce a value that should be an array — handles [UNKNOWN] strings and null/undefined */
+function toArr<T>(val: T[] | string | null | undefined): T[] {
+  return Array.isArray(val) ? val : [];
+}
+
 type MiaEnvironment = "local" | "staging" | "production";
 type EnvironmentOption = { key: MiaEnvironment; label: string; isConfigured: boolean };
 type EnvironmentResponse = { defaultEnvironment?: MiaEnvironment; environments?: EnvironmentOption[] };
@@ -281,11 +286,11 @@ function ClinicianBMCView({ plan }: { plan: ClinicianPlanBMC }) {
       </div>
 
       {/* Short-term aims */}
-      {plan.shortTermAims && plan.shortTermAims.length > 0 && (
+      {toArr(plan.shortTermAims).length > 0 && (
         <div>
           <SectionLabel>Short-term Aims</SectionLabel>
           <div className="flex flex-col gap-3">
-            {plan.shortTermAims.map((aim, i) => (
+            {toArr(plan.shortTermAims).map((aim, i) => (
               <div key={i} className="overflow-hidden rounded-xl border">
                 <div className="flex items-center justify-between border-b bg-slate-50 px-4 py-3">
                   <div className="flex items-center gap-2">
@@ -302,7 +307,7 @@ function ClinicianBMCView({ plan }: { plan: ClinicianPlanBMC }) {
                   <div className="p-4">
                     <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-teal-600">Interventions</div>
                     <ul className="flex flex-col gap-2">
-                      {(aim.interventions ?? []).map((iv, j) => (
+                      {toArr(aim.interventions).map((iv, j) => (
                         <li key={j} className="text-xs leading-relaxed text-slate-500">
                           {iv.name && <strong className="text-slate-700">{iv.name}</strong>}
                           {iv.name && iv.description ? " — " : ""}
@@ -314,7 +319,7 @@ function ClinicianBMCView({ plan }: { plan: ClinicianPlanBMC }) {
                   <div className="p-4">
                     <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-teal-600">Progress Monitoring</div>
                     <ul className="flex flex-col gap-1">
-                      {(aim.progressMonitoring ?? []).map((m, j) => (
+                      {toArr(aim.progressMonitoring).map((m, j) => (
                         <li key={j} className="text-xs leading-relaxed text-slate-500">{m}</li>
                       ))}
                     </ul>
@@ -322,7 +327,7 @@ function ClinicianBMCView({ plan }: { plan: ClinicianPlanBMC }) {
                   <div className="p-4">
                     <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-teal-600">Next Steps</div>
                     <ul className="flex flex-col gap-1">
-                      {(aim.nextSteps ?? []).map((s, j) => (
+                      {toArr(aim.nextSteps).map((s, j) => (
                         <li key={j} className="text-xs leading-relaxed text-slate-500">{s}</li>
                       ))}
                     </ul>
@@ -336,21 +341,21 @@ function ClinicianBMCView({ plan }: { plan: ClinicianPlanBMC }) {
 
       {/* Long-term aims + Information gaps */}
       <div className="grid gap-4 md:grid-cols-2">
-        {plan.longTermAims && plan.longTermAims.length > 0 && (
+        {toArr(plan.longTermAims).length > 0 && (
           <div className="rounded-lg border bg-slate-50 p-4">
             <SectionLabel>Long-term Aims</SectionLabel>
             <ul className="flex flex-col gap-1">
-              {plan.longTermAims.map((a, i) => (
+              {toArr(plan.longTermAims).map((a, i) => (
                 <li key={i} className="flex gap-2 text-sm text-slate-600"><span className="text-teal-500 font-bold">—</span>{a}</li>
               ))}
             </ul>
           </div>
         )}
-        {plan.informationGaps && plan.informationGaps.length > 0 && (
+        {toArr(plan.informationGaps).length > 0 && (
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
             <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-amber-700">Flagged — information gaps</div>
             <ul className="flex flex-col gap-1">
-              {plan.informationGaps.map((g, i) => (
+              {toArr(plan.informationGaps).map((g, i) => (
                 <li key={i} className="flex gap-2 text-sm text-amber-800"><span className="font-bold">—</span>{g}</li>
               ))}
             </ul>
@@ -548,10 +553,10 @@ function ClinicianGPView({ plan }: { plan: ClinicianPlanGP }) {
       )}
 
       {/* ── Information gaps ── */}
-      {plan.informationGaps && plan.informationGaps.length > 0 && (
+      {toArr(plan.informationGaps).length > 0 && (
         <>
           <FormSection title="Flagged — information gaps (requires clinician review)" />
-          {plan.informationGaps.map((g, i) => (
+          {toArr(plan.informationGaps).map((g, i) => (
             <FormRow key={i} label={`Gap ${i + 1}`} value={g} highlight="amber" />
           ))}
         </>
@@ -575,11 +580,11 @@ function PatientView({ plan }: { plan: PatientPlan }) {
         </div>
       )}
 
-      {plan.priorityAreas && plan.priorityAreas.length > 0 && (
+      {toArr(plan.priorityAreas).length > 0 && (
         <div>
           <SectionLabel>What matters most right now</SectionLabel>
           <div className="flex flex-col gap-2">
-            {plan.priorityAreas.map((area, i) => (
+            {toArr(plan.priorityAreas).map((area, i) => (
               <div key={i} className="flex items-center gap-3 rounded-lg border bg-slate-50 px-4 py-3">
                 <div className={`h-2.5 w-2.5 flex-shrink-0 rounded-full ${urgencyDot(area.urgency)}`} />
                 <div>
@@ -592,11 +597,11 @@ function PatientView({ plan }: { plan: PatientPlan }) {
         </div>
       )}
 
-      {plan.goals && plan.goals.length > 0 && (
+      {toArr(plan.goals).length > 0 && (
         <div>
           <SectionLabel>Your goals</SectionLabel>
           <div className="flex flex-col gap-2">
-            {plan.goals.map((goal, i) => (
+            {toArr(plan.goals).map((goal, i) => (
               <div key={i} className="overflow-hidden rounded-xl border">
                 <div className="border-b bg-slate-50 px-4 py-3">
                   <span className="text-sm font-bold text-slate-800">Goal {i + 1} · {goal.title}</span>
@@ -608,11 +613,11 @@ function PatientView({ plan }: { plan: PatientPlan }) {
         </div>
       )}
 
-      {plan.howWeGetThere && plan.howWeGetThere.length > 0 && (
+      {toArr(plan.howWeGetThere).length > 0 && (
         <div>
           <SectionLabel>How we&apos;ll get there</SectionLabel>
           <div className="flex flex-col gap-2">
-            {plan.howWeGetThere.map((item, i) => (
+            {toArr(plan.howWeGetThere).map((item, i) => (
               <div key={i} className="rounded-lg border bg-slate-50 px-4 py-3 text-sm text-slate-700">
                 <strong>{item.approach}</strong>
                 {item.description ? `: ${item.description}` : ""}
@@ -629,11 +634,11 @@ function PatientView({ plan }: { plan: PatientPlan }) {
         </div>
       )}
 
-      {plan.whatComesNext && plan.whatComesNext.length > 0 && (
+      {toArr(plan.whatComesNext).length > 0 && (
         <div className="rounded-lg border bg-slate-50 p-4">
           <SectionLabel>What comes next</SectionLabel>
           <ul className="flex flex-col gap-2">
-            {plan.whatComesNext.map((item, i) => (
+            {toArr(plan.whatComesNext).map((item, i) => (
               <li key={i} className="flex gap-2 text-sm text-slate-700">
                 <span className="font-bold text-teal-500">→</span>{item}
               </li>
