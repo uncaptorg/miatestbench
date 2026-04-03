@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Mic, Send, Radio, CheckCircle, FileSearch, Edit3, ClipboardList, RefreshCw, FileText, Download } from "lucide-react";
+import { Mic, Send, Radio, CheckCircle, FileSearch, Edit3, ClipboardList, RefreshCw, FileText, Download, ListChecks } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 const getMermaid = () =>
@@ -16,12 +16,20 @@ const getMermaid = () =>
 
 const flowChart = `
 flowchart TD
-    A(["▶ Start Audio Session<br/><small>POST /session<br/>mode=#quot;audio#quot;</small>"]):::start --> B["Send Audio Chunk<br/><small>POST /audio</small>"]
+    A(["▶ Start Audio Session<br/><small>POST /session<br/>mode=#quot;audio#quot;</small>"]):::start --> GF{enable_guidance?}:::decision
+    GF -- "true" --> B["Send Audio Chunk<br/><small>POST /audio</small>"]
     B --> C["Poll for Feedback<br/><small>GET /feedback</small>"]
     C --> D{Audio Finished?}
     D -- No --> B
     D -- "Yes<br/><small>POST /audio<br/>final_chunk=true</small>" --> E["Get Session Details<br/><small>GET /session/{session_id}</small>"]
-    E -- status=COMPLETED --> F["Review & Edit Session Details<br/><small>Put /session/{session_id}</small>"]
+    GF -- "false" --> B2["Send Audio Chunk<br/><small>POST /audio</small>"]
+    B2 --> D2{Audio Finished?}
+    D2 -- No --> B2
+    D2 -- "Yes<br/><small>POST /audio<br/>final_chunk=true</small>" --> E
+    E -- status=COMPLETED --> F["Review & Edit Session Details<br/><small>PUT /session/{session_id}</small>"]
+    E -- "status=COMPLETED<br/>(optional side step)" --> Q1["Submit Questionnaire<br/><small>POST /questionnaires</small>"]:::side
+    Q1 --> Q2["Poll Questionnaire Results<br/><small>GET /questionnaires/{request_id}</small>"]:::side
+    Q2 -- status=COMPLETED --> Q3(["✓ Questionnaire Done"]):::sideDone
     F --> G{More Edits?}
     G -- Yes --> E
     G -- No --> H["Generate Care Plan<br/><small>POST /generate-care-plan</small>"]
@@ -32,12 +40,18 @@ flowchart TD
 
     classDef start fill:#6366f1,stroke:#4338ca,color:#fff,rx:20
     classDef done fill:#22c55e,stroke:#16a34a,color:#fff,rx:20
+    classDef side fill:#f59e0b,stroke:#d97706,color:#fff
+    classDef sideDone fill:#10b981,stroke:#059669,color:#fff
+    classDef decision fill:#7c3aed,stroke:#6d28d9,color:#fff
 `;
 
 const textFlowChart = `
 flowchart TD
     A(["▶ Create Session<br/><small>POST /session<br/>mode=#quot;text#quot;</small>"]):::start --> B["Get Session Details<br/><small>GET /session/{session_id}</small>"]
     B -- status=COMPLETED --> C["Review & Edit Session Details<br/><small>PUT /session/{id}</small>"]
+    B -- "status=COMPLETED<br/>(optional side step)" --> Q1["Submit Questionnaire<br/><small>POST /questionnaires</small>"]:::side
+    Q1 --> Q2["Poll Questionnaire Results<br/><small>GET /questionnaires/{request_id}</small>"]:::side
+    Q2 -- status=COMPLETED --> Q3(["✓ Questionnaire Done"]):::sideDone
     C --> D{More Edits?}
     D -- Yes --> B
     D -- No --> E["Generate Care Plan<br/><small>POST /generate-care-plan</small>"]
@@ -48,6 +62,8 @@ flowchart TD
 
     classDef start fill:#0ea5e9,stroke:#0284c7,color:#fff,rx:20
     classDef done fill:#22c55e,stroke:#16a34a,color:#fff,rx:20
+    classDef side fill:#f59e0b,stroke:#d97706,color:#fff
+    classDef sideDone fill:#10b981,stroke:#059669,color:#fff
 `;
 
 type Phase = {
@@ -58,6 +74,7 @@ type Phase = {
   description: string;
   endpoints?: string[];
   loop?: string;
+  sideStep?: boolean;
   colorFrom: string;
   colorTo: string;
   iconColor: string;
@@ -150,6 +167,20 @@ const phases: Phase[] = [
     colorFrom: "from-rose-50",
     colorTo: "to-white",
     iconColor: "text-rose-500",
+  },
+  {
+    id: 8,
+    icon: ListChecks,
+    label: "Optional Side Step",
+    title: "Questionnaire Auto-Fill",
+    description:
+      "Once the session reaches COMPLETED status, submit a list of question set names to be answered automatically from the session context. Poll the results endpoint until status is COMPLETED.",
+    endpoints: ["POST /questionnaires", "GET /questionnaires/{request_id}"],
+    loop: "Poll until status=COMPLETED",
+    sideStep: true,
+    colorFrom: "from-amber-50",
+    colorTo: "to-white",
+    iconColor: "text-amber-500",
   },
 ];
 
@@ -284,16 +315,27 @@ export default function AudioUseCasePage() {
     const Icon = phase.icon;
     return (
       <div
-        className={`rounded-2xl border bg-gradient-to-br ${phase.colorFrom} ${phase.colorTo} p-6 shadow-sm hover:shadow-md transition-shadow`}
+        className={`rounded-2xl bg-gradient-to-br ${phase.colorFrom} ${phase.colorTo} p-6 shadow-sm hover:shadow-md transition-shadow ${
+          phase.sideStep
+            ? "border-2 border-dashed border-amber-300"
+            : "border"
+        }`}
       >
         <div className="flex items-start gap-4">
           <div className={`mt-0.5 shrink-0 ${phase.iconColor}`}>
             <Icon size={28} />
           </div>
           <div className="min-w-0">
-            <span className="mb-1 block text-[10px] font-bold uppercase tracking-widest text-slate-400">
-              {phase.label}
-            </span>
+            <div className="mb-1 flex items-center gap-2">
+              <span className="block text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                {phase.label}
+              </span>
+              {phase.sideStep && (
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-600 ring-1 ring-amber-300">
+                  Optional
+                </span>
+              )}
+            </div>
             <h3 className="mb-2 text-base font-bold text-slate-900">
               {phase.title}
             </h3>

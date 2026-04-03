@@ -511,7 +511,7 @@ export default function MiaAudioTestBenchPage() {
     stopPolling();
     stopTranscriptionPolling();
     setSessionId("");
-    persistSessionIdInUrl("");
+    persistSessionInUrl("", selectedEnvironment);
     syncSequenceNumber(0);
     setLastSequenceProcessed(null);
     setLastModifiedDateUtc("");
@@ -581,20 +581,19 @@ export default function MiaAudioTestBenchPage() {
     setSequenceNumber(nextSequence);
   };
 
-  const persistSessionIdInUrl = useCallback(
-    (nextSessionId: string) => {
-      const params = new URLSearchParams(searchParams.toString());
+  const persistSessionInUrl = useCallback(
+    (nextSessionId: string, environment: MiaEnvironment) => {
+      const params = new URLSearchParams();
 
       if (nextSessionId.trim()) {
         params.set("sessionId", nextSessionId.trim());
-      } else {
-        params.delete("sessionId");
+        params.set("env", environment);
       }
 
       const query = params.toString();
       router.replace(query ? `/mia-audio-test-bench?${query}` : "/mia-audio-test-bench");
     },
-    [router, searchParams],
+    [router],
   );
 
   const stopPolling = () => {
@@ -1239,7 +1238,7 @@ export default function MiaAudioTestBenchPage() {
 
       const data = (await response.json()) as SessionResponse;
       setSessionId(data.session_id);
-      persistSessionIdInUrl(data.session_id);
+      persistSessionInUrl(data.session_id, selectedEnvironment);
       syncSequenceNumber(0);
       setLastSequenceProcessed(null);
       setLastModifiedDateUtc("");
@@ -1442,6 +1441,19 @@ export default function MiaAudioTestBenchPage() {
       return;
     }
 
+    // Restore environment and proxy token from URL or sessionStorage
+    const envFromUrl = searchParams.get("env")?.trim() as MiaEnvironment | undefined;
+    const envFromStorage = sessionStorage.getItem("miaAudioBench.environment")?.trim() as MiaEnvironment | undefined;
+    const envToHydrate = envFromUrl || envFromStorage;
+    if (envToHydrate === "local" || envToHydrate === "staging" || envToHydrate === "production") {
+      setSelectedEnvironment(envToHydrate);
+    }
+
+    const tokenFromStorage = sessionStorage.getItem("miaAudioBench.proxyToken");
+    if (typeof tokenFromStorage === "string") {
+      setProxyToken(tokenFromStorage);
+    }
+
     const sessionIdFromUrl = searchParams.get("sessionId")?.trim();
     const sessionIdFromStorage = sessionStorage.getItem("miaAudioBench.sessionId")?.trim();
     const sessionIdToHydrate = sessionIdFromUrl || sessionIdFromStorage;
@@ -1453,11 +1465,15 @@ export default function MiaAudioTestBenchPage() {
 
     didHydrateFromUrlRef.current = true;
     setSessionId(sessionIdToHydrate);
-    persistSessionIdInUrl(sessionIdToHydrate);
+
+    const resolvedEnv = (envToHydrate === "local" || envToHydrate === "staging" || envToHydrate === "production")
+      ? envToHydrate
+      : "local";
+    persistSessionInUrl(sessionIdToHydrate, resolvedEnv);
     setErrorMessage("");
     setStatus("INITIALISING");
     startPolling(sessionIdToHydrate);
-  }, [persistSessionIdInUrl, searchParams, startPolling]);
+  }, [persistSessionInUrl, searchParams, startPolling]);
 
   useEffect(() => {
     if (!isAudioMode) {
@@ -1579,7 +1595,13 @@ export default function MiaAudioTestBenchPage() {
                 Environment
                 <select
                   value={selectedEnvironment}
-                  onChange={(event) => setSelectedEnvironment(event.target.value as MiaEnvironment)}
+                  onChange={(event) => {
+                    const nextEnv = event.target.value as MiaEnvironment;
+                    setSelectedEnvironment(nextEnv);
+                    if (sessionId.trim()) {
+                      persistSessionInUrl(sessionId, nextEnv);
+                    }
+                  }}
                   className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
                 >
                   {environmentOptions.map((option) => (

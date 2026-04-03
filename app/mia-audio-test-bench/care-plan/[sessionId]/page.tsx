@@ -822,7 +822,7 @@ export default function MiaCarePlanPage() {
               <p className="mt-1 text-sm text-slate-400">Session: {sessionId || "Missing"}</p>
             </div>
             <Link
-              href={sessionId ? `/mia-audio-test-bench?sessionId=${sessionId}` : "/mia-audio-test-bench"}
+              href={sessionId ? `/mia-audio-test-bench?sessionId=${sessionId}&env=${selectedEnvironment}` : "/mia-audio-test-bench"}
               className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
             >
               ← Back to Session
