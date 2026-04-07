@@ -353,6 +353,296 @@ const DEFAULT_CLIENT_DEMOGRAPHICS = {
   context: "",
 };
 
+const QUESTION_SETS = [
+  "alcohol_use_disorders_identification_test__consumption",
+  "altman_selfrating_mania_scale",
+  "apa_level_1_alcohol_and_substances_p_6to17",
+  "apa_level_1_crosscutting_symptom_p_6to17",
+  "aq10_p_5to10",
+  "asrm__bmc_mania_screen",
+  "assist_alcohol_use",
+  "assist_cannabis_lite",
+  "assist_cannabis_use",
+  "assist_lite_alcohol_use",
+  "assist_lite_cannabis_use",
+  "assist_lite_tobacco_use",
+  "assist_other_drug_use_lite",
+  "assist_other_substance_use",
+  "assist_other_substance_use_no_cannabis",
+  "assist_tobacco_lite",
+  "assist_tobacco_use",
+  "auditc_plus",
+  "auditc_plus_short",
+  "baffs",
+  "bmc_mania_screen",
+  "bmc_psychosis_screen",
+  "bmc_sleepwake_cycle_psqi_mctq",
+  "bmi_and_waist",
+  "bnssiat_adapted",
+  "brief_nonsuicidal_selfinjury_assessment_tool",
+  "brs",
+  "cape6",
+  "cgis_clinician",
+  "cgis_individual",
+  "cgis_individualuniq",
+  "cgis_support",
+  "child__youth_resilience_measure",
+  "childrens_social_understanding_scale",
+  "clinical_global_impressionseverity_scale",
+  "clinical_stage__clinician_input",
+  "cognition_hba",
+  "cognitive_behaviour__ubwell",
+  "columbia_suicide_severity_rating_scale",
+  "current_need__clinician_input",
+  "dar5",
+  "demo_ahs_clinician_question_set",
+  "demo_ahs_individual_question_set",
+  "demo_aus_clinician_question_set",
+  "demo_aus_individual_question_set",
+  "demo_london_clinician_question_set",
+  "demo_london_individual_question_set",
+  "demographics",
+  "dvprs",
+  "dvsat_timp",
+  "eating_disorder_examination_questionnaire",
+  "ede_adapted",
+  "eq5dy_clinician",
+  "eq5dy_individual",
+  "eq5dy_individualuniq",
+  "eq5dy_support",
+  "euroqol_group_standard_measure_of_health_status",
+  "family_mental_health_history",
+  "family_mental_health_history_ageing",
+  "family_mental_health_history_butterfly",
+  "gad7",
+  "gds15",
+  "helpseeking_history",
+  "hits_parent_5to10",
+  "inventory_of_complicated_grief",
+  "ipaq",
+  "k10",
+  "k10_plus",
+  "kessler_10",
+  "kessler_10_2",
+  "lq_p_5to10",
+  "maas",
+  "mental_health_history",
+  "neet_status",
+  "nodsclip",
+  "nutrition_hba",
+  "nutrition_p_5to10",
+  "oa_intake_qs",
+  "oasis",
+  "ocicv5",
+  "overall_anxiety_severity_and_impairment_scale",
+  "pa_parent_5to10",
+  "parenting_stress_scale_p_5to10",
+  "patientcentredness",
+  "pcl5",
+  "pcptsd5_and_pclc",
+  "pedsql_child_1318",
+  "pedsql_child_812",
+  "pedsql_parent_1318",
+  "pedsql_parent_57",
+  "pedsql_parent_812",
+  "phq9",
+  "physical_health_amenorrhea",
+  "physical_health_child5to10_p",
+  "physical_health_fluid_intake",
+  "physical_health_history",
+  "physical_health_history_ageing",
+  "physical_health_history_butterfly",
+  "physical_health_pattern_of_eating",
+  "physical_health_physical_activity",
+  "physical_health_physical_cognitive",
+  "physical_health_weight_fluctuations",
+  "pittsburgh_sleep_quality_index",
+  "pq16",
+  "primary_care_ptsd_screen_for_dsm_5",
+  "prodromal_questionnaire",
+  "psc17",
+  "ptsd5",
+  "qa_questionset__name",
+  "qids",
+  "quick_inventory_of_depressive_symptomatology",
+  "rcads_child",
+  "rcads_parent",
+  "recovering_quality_of_life__10_item",
+  "school_participation_and_attendance",
+  "schusters_sss",
+  "screen_time_p_5to10",
+  "sdq_impact_parent_5to10",
+  "sdq_parent_or_teacher_4to10",
+  "sidas_and_cssrs",
+  "sidas_and_cssrs_mind_plasticity",
+  "sleep_older_adults_psqi__isi__stop",
+  "snapiv_parent_or_teacher_6to17",
+  "sofas_clinician",
+  "sofas_individual",
+  "sofas_support",
+  "sphere12",
+  "spiritual_health_and_lifeorientation_measure",
+  "suicidal_ideation_attributes_scale",
+  "validated_disability_assessment_tool_name",
+  "whodas_20_12",
+  "work__social_adjustment_scale",
+  "world_health_organisation_disability_assessment_schedule",
+  "wsas",
+  "youth_not_in_education_or_employment",
+];
+
+const HEALTH_DOMAIN_NAMES = [
+  "Alcohol",
+  "Alcohol Use",
+  "Anger",
+  "Anxiety",
+  "Body Image",
+  "Body Mass Index",
+  "Cannabis Use",
+  "Clinical Care",
+  "Clinical Care & Support",
+  "Clinical Stage",
+  "Cognition",
+  "Current Need",
+  "Daily Functioning",
+  "Depressed Mood",
+  "Domestic Violence",
+  "Eating Behaviours",
+  "Eating Behaviours And Body Image",
+  "Everyday Function",
+  "Everyday Functioning",
+  "Gambling",
+  "General Health",
+  "Grief & Loss",
+  "Kessler 10 Plus",
+  "Mania Like Experiences",
+  "Mental Health",
+  "Mindfulness And Meditation",
+  "Nutrition",
+  "Obsessive Compulsive Disorder",
+  "Other Substance Use",
+  "Overall Health",
+  "Pain",
+  "Physical Health",
+  "Post Traumatic Stress",
+  "Psychological Distress",
+  "Psychosis Like Experiences",
+  "Quality of Life",
+  "Resilience",
+  "Self Harm",
+  "Sleep",
+  "Sleep Wake Cycle",
+  "Social And Occupational Function",
+  "Social And Occupational Functioning",
+  "Social Connectedness",
+  "Spiritual Health",
+  "Substance Use",
+  "Suicidal Thoughts And Behaviours",
+  "Tobacco Use",
+];
+
+const formatSetName = (name: string) =>
+  name
+    .replace(/_+/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+
+type AssessmentEntry = {
+  enabled: boolean;
+  questionSet: string;
+  healthDomainName: string;
+  rawValue: string;
+  rangeLabel: string;
+};
+
+const EMPTY_ASSESSMENT: AssessmentEntry = {
+  enabled: false,
+  questionSet: "",
+  healthDomainName: "",
+  rawValue: "",
+  rangeLabel: "",
+};
+
+const RESOLUTION_OPTIONS = [
+  "unable_to_contact",
+  "care_option_assigned",
+  "transferred_to_another_service",
+  "other",
+] as const;
+
+const AUTHOR_ROLE_TYPES = [
+  "individual",
+  "clinician",
+  "lead_clinician",
+  "manager",
+  "admin",
+  "owner",
+  "researcher",
+  "support_person",
+] as const;
+
+const GOAL_STATUSES = [
+  "requires_clinician_setup",
+  "active",
+  "archived",
+] as const;
+
+type EventEntry = {
+  enabled: boolean;
+  title: string;
+  description: string;
+  createdAt: string;
+  resolvedAt: string;
+  resolutionOption: string;
+  resolutionText: string;
+};
+
+const EMPTY_EVENT: EventEntry = {
+  enabled: false,
+  title: "",
+  description: "",
+  createdAt: "",
+  resolvedAt: "",
+  resolutionOption: "",
+  resolutionText: "",
+};
+
+type NoteEntry = {
+  enabled: boolean;
+  text: string;
+  authorRoleType: string;
+  occurredAt: string;
+};
+
+const EMPTY_NOTE: NoteEntry = {
+  enabled: false,
+  text: "",
+  authorRoleType: "",
+  occurredAt: "",
+};
+
+type GoalActionEntry = {
+  description: string;
+  completed: boolean;
+};
+
+type GoalEntry = {
+  enabled: boolean;
+  title: string;
+  description: string;
+  status: string;
+  endDate: string;
+  actions: GoalActionEntry[];
+};
+
+const EMPTY_GOAL: GoalEntry = {
+  enabled: false,
+  title: "",
+  description: "",
+  status: "active",
+  endDate: "",
+  actions: [],
+};
+
 const sleep = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
 const getErrorMessage = async (response: Response, fallback: string) => {
@@ -394,16 +684,21 @@ export default function MiaAudioTestBenchPage() {
   const [selectedAudioInputId, setSelectedAudioInputId] = useState("");
   const [isLoadingAudioInputs, setIsLoadingAudioInputs] = useState(false);
   const [environmentOptions, setEnvironmentOptions] = useState<EnvironmentOption[]>(DEFAULT_ENVIRONMENT_OPTIONS);
-  const [selectedEnvironment, setSelectedEnvironment] = useState<MiaEnvironment>("local");
+  const [selectedEnvironment, _setSelectedEnvironment] = useState<MiaEnvironment>("local");
+  const selectedEnvironmentRef = useRef<MiaEnvironment>("local");
+  const setSelectedEnvironment = useCallback((env: MiaEnvironment) => {
+    selectedEnvironmentRef.current = env;
+    _setSelectedEnvironment(env);
+  }, []);
   const [sessionMode, setSessionMode] = useState<SessionMode>("audio");
   const [clientAge, setClientAge] = useState(DEFAULT_CLIENT_DEMOGRAPHICS.age);
   const [clientOptionalDemographics, setClientOptionalDemographics] = useState<OptionalDemographicsInput>(
     EMPTY_OPTIONAL_DEMOGRAPHICS,
   );
-  const [clientAssessmentsJson, setClientAssessmentsJson] = useState("");
-  const [clientEventsJson, setClientEventsJson] = useState("");
-  const [clientNotesJson, setClientNotesJson] = useState("");
-  const [clientGoalsJson, setClientGoalsJson] = useState("");
+  const [clientAssessments, setClientAssessments] = useState<[AssessmentEntry, AssessmentEntry]>([{ ...EMPTY_ASSESSMENT }, { ...EMPTY_ASSESSMENT }]);
+  const [clientEvents, setClientEvents] = useState<EventEntry[]>([{ ...EMPTY_EVENT }]);
+  const [clientNotes, setClientNotes] = useState<NoteEntry[]>([{ ...EMPTY_NOTE }]);
+  const [clientGoals, setClientGoals] = useState<GoalEntry[]>([{ ...EMPTY_GOAL }]);
   const [clientContextOverrideJson, setClientContextOverrideJson] = useState("");
   const [enableGuidance, setEnableGuidance] = useState(true);
   const [guidanceIntervalSeconds, setGuidanceIntervalSeconds] = useState(10);
@@ -411,10 +706,10 @@ export default function MiaAudioTestBenchPage() {
   const [draftClientOptionalDemographics, setDraftClientOptionalDemographics] = useState<OptionalDemographicsInput>(
     EMPTY_OPTIONAL_DEMOGRAPHICS,
   );
-  const [draftClientAssessmentsJson, setDraftClientAssessmentsJson] = useState("");
-  const [draftClientEventsJson, setDraftClientEventsJson] = useState("");
-  const [draftClientNotesJson, setDraftClientNotesJson] = useState("");
-  const [draftClientGoalsJson, setDraftClientGoalsJson] = useState("");
+  const [draftClientAssessments, setDraftClientAssessments] = useState<[AssessmentEntry, AssessmentEntry]>([{ ...EMPTY_ASSESSMENT }, { ...EMPTY_ASSESSMENT }]);
+  const [draftClientEvents, setDraftClientEvents] = useState<EventEntry[]>([{ ...EMPTY_EVENT }]);
+  const [draftClientNotes, setDraftClientNotes] = useState<NoteEntry[]>([{ ...EMPTY_NOTE }]);
+  const [draftClientGoals, setDraftClientGoals] = useState<GoalEntry[]>([{ ...EMPTY_GOAL }]);
   const [draftClientContextOverrideJson, setDraftClientContextOverrideJson] = useState("");
   const [clinicalNotes, setClinicalNotes] = useState("");
   const [isClientContextModalOpen, setIsClientContextModalOpen] = useState(false);
@@ -564,13 +859,12 @@ export default function MiaAudioTestBenchPage() {
   const transcriptionAvailable = status === "COMPLETED";
   const isAudioMode = sessionMode === "audio";
 
-  const headers = useMemo<HeadersInit>(
-    () => ({
-      ...(proxyToken.trim() ? { "x-mia-token": proxyToken.trim() } : {}),
-      "x-mia-environment": selectedEnvironment,
-    }),
-    [proxyToken, selectedEnvironment],
-  );
+  const getHeaders = useCallback((): HeadersInit => ({
+    ...(proxyToken.trim() ? { "x-mia-token": proxyToken.trim() } : {}),
+    "x-mia-environment": selectedEnvironmentRef.current,
+  }), [proxyToken]);
+
+  const headers = getHeaders();
 
   const buildUrl = (path: string) => {
     return `${PROXY_BASE_PATH}${path}`;
@@ -613,10 +907,10 @@ export default function MiaAudioTestBenchPage() {
   const openClientContextModal = () => {
     setDraftClientAge(clientAge);
     setDraftClientOptionalDemographics(clientOptionalDemographics);
-    setDraftClientAssessmentsJson(clientAssessmentsJson);
-    setDraftClientEventsJson(clientEventsJson);
-    setDraftClientNotesJson(clientNotesJson);
-    setDraftClientGoalsJson(clientGoalsJson);
+    setDraftClientAssessments([{ ...clientAssessments[0] }, { ...clientAssessments[1] }]);
+    setDraftClientEvents(clientEvents.map((e) => ({ ...e })));
+    setDraftClientNotes(clientNotes.map((n) => ({ ...n })));
+    setDraftClientGoals(clientGoals.map((g) => ({ ...g, actions: g.actions.map((a) => ({ ...a })) })));
     setDraftClientContextOverrideJson(clientContextOverrideJson);
     setIsClientContextModalOpen(true);
   };
@@ -628,10 +922,10 @@ export default function MiaAudioTestBenchPage() {
   const saveClientContext = () => {
     setClientAge(Number.isFinite(draftClientAge) ? Math.max(0, draftClientAge) : 0);
     setClientOptionalDemographics(draftClientOptionalDemographics);
-    setClientAssessmentsJson(draftClientAssessmentsJson.trim());
-    setClientEventsJson(draftClientEventsJson.trim());
-    setClientNotesJson(draftClientNotesJson.trim());
-    setClientGoalsJson(draftClientGoalsJson.trim());
+    setClientAssessments([{ ...draftClientAssessments[0] }, { ...draftClientAssessments[1] }]);
+    setClientEvents(draftClientEvents.map((e) => ({ ...e })));
+    setClientNotes(draftClientNotes.map((n) => ({ ...n })));
+    setClientGoals(draftClientGoals.map((g) => ({ ...g, actions: g.actions.map((a) => ({ ...a })) })));
     setClientContextOverrideJson(draftClientContextOverrideJson.trim());
     setIsClientContextModalOpen(false);
   };
@@ -685,7 +979,7 @@ export default function MiaAudioTestBenchPage() {
       try {
         const response = await fetch(buildUrl(`/v1/mia/sessions/${currentSessionId}/transcription`), {
           method: "GET",
-          headers,
+          headers: getHeaders(),
         });
 
         if (!response.ok) {
@@ -705,7 +999,7 @@ export default function MiaAudioTestBenchPage() {
         setIsFetchingTranscription(false);
       }
     },
-    [headers],
+    [getHeaders],
   );
 
   const startTranscriptionPolling = useCallback(
@@ -724,15 +1018,17 @@ export default function MiaAudioTestBenchPage() {
       return null;
     }
 
+    const currentHeaders = getHeaders();
+
     try {
       const [feedbackRes, sessionInfoRes] = await Promise.all([
         fetch(buildUrl(`/v1/mia/sessions/${currentSessionId}/feedback`), {
           method: "GET",
-          headers,
+          headers: currentHeaders,
         }),
         fetch(buildUrl(`/v1/mia/sessions/${currentSessionId}`), {
           method: "GET",
-          headers,
+          headers: currentHeaders,
         }),
       ]);
 
@@ -891,7 +1187,7 @@ export default function MiaAudioTestBenchPage() {
       setErrorMessage("Polling failed. Check network/API availability.");
       return null;
     }
-  }, [awaitingReadyTranscription, fetchTranscription, headers, isFetchingTranscription]);
+  }, [awaitingReadyTranscription, fetchTranscription, getHeaders, isFetchingTranscription]);
 
   const pollUntilSessionUpdated = async (currentSessionId: string) => {
     let sawNonCompletedStatus = false;
@@ -1113,30 +1409,6 @@ export default function MiaAudioTestBenchPage() {
         );
       }
 
-      const parseOptionalArrayJson = (fieldLabel: string, value: string, maxLength?: number) => {
-        const normalizedValue = value.trim();
-        if (!normalizedValue) {
-          return undefined;
-        }
-
-        let parsedValue: unknown;
-        try {
-          parsedValue = JSON.parse(normalizedValue);
-        } catch {
-          throw new Error(`${fieldLabel} must be valid JSON.`);
-        }
-
-        if (!Array.isArray(parsedValue)) {
-          throw new Error(`${fieldLabel} must be a JSON array.`);
-        }
-
-        if (typeof maxLength === "number" && parsedValue.length > maxLength) {
-          throw new Error(`${fieldLabel} exceeds max length ${maxLength}.`);
-        }
-
-        return parsedValue;
-      };
-
       let clientContextPayload: Record<string, unknown>;
 
       if (normalizedContextOverride) {
@@ -1192,17 +1464,63 @@ export default function MiaAudioTestBenchPage() {
           demographics[field.key] = normalizedValue;
         }
 
-        const assessments = parseOptionalArrayJson("Client context assessments", clientAssessmentsJson, 1);
-        const events = parseOptionalArrayJson("Client context events", clientEventsJson, 10);
-        const notes = parseOptionalArrayJson("Client context notes", clientNotesJson, 10);
-        const goals = parseOptionalArrayJson("Client context goals", clientGoalsJson, 10);
+        const assessments = clientAssessments
+          .filter((a) => a.enabled && a.questionSet)
+          .map((a) => ({
+            completed_at: new Date().toISOString(),
+            questionnaire: {
+              name: formatSetName(a.questionSet),
+              question_sets: [
+                {
+                  name: formatSetName(a.questionSet),
+                  ...(a.healthDomainName ? { health_domain_name: a.healthDomainName } : {}),
+                  score: {
+                    raw_value: Number(a.rawValue) || 0,
+                    range_label: a.rangeLabel || "Unknown",
+                  },
+                },
+              ],
+            },
+          }));
+        const events = clientEvents
+          .filter((e) => e.enabled && e.title.trim())
+          .map((e) => ({
+            title: e.title.trim(),
+            ...(e.description.trim() ? { description: e.description.trim() } : {}),
+            created_at: e.createdAt ? new Date(e.createdAt).toISOString() : new Date().toISOString(),
+            ...(e.resolvedAt ? { resolved_at: new Date(e.resolvedAt).toISOString() } : {}),
+            ...(e.resolutionOption ? { resolution_option: e.resolutionOption } : {}),
+            ...(e.resolutionText.trim() ? { resolution_text: e.resolutionText.trim() } : {}),
+          }));
+        const notes = clientNotes
+          .filter((n) => n.enabled && n.text.trim())
+          .map((n) => ({
+            text: n.text.trim(),
+            ...(n.authorRoleType ? { author_role_type: n.authorRoleType } : {}),
+            occurred_at: n.occurredAt ? new Date(n.occurredAt).toISOString() : new Date().toISOString(),
+          }));
+        const goals = clientGoals
+          .filter((g) => g.enabled && g.title.trim())
+          .map((g) => ({
+            title: g.title.trim(),
+            ...(g.description.trim() ? { description: g.description.trim() } : {}),
+            status: g.status || "active",
+            ...(g.endDate ? { end_date: g.endDate } : {}),
+            ...(g.actions.length > 0
+              ? {
+                  actions: g.actions
+                    .filter((a) => a.description.trim())
+                    .map((a) => ({ description: a.description.trim(), completed: a.completed })),
+                }
+              : {}),
+          }));
 
         clientContextPayload = {
           demographics,
-          ...(assessments ? { assessments } : {}),
-          ...(events ? { events } : {}),
-          ...(notes ? { notes } : {}),
-          ...(goals ? { goals } : {}),
+          ...(assessments.length > 0 ? { assessments } : {}),
+          ...(events.length > 0 ? { events } : {}),
+          ...(notes.length > 0 ? { notes } : {}),
+          ...(goals.length > 0 ? { goals } : {}),
         };
       }
 
@@ -1668,10 +1986,10 @@ export default function MiaAudioTestBenchPage() {
                     <ul className="mt-2 space-y-1 text-sm text-slate-700">
                       <li>Age: {clientAge}</li>
                       <li>Optional Demographics Set: {selectedOptionalDemographicsCount}</li>
-                      <li>Assessments JSON: {clientAssessmentsJson ? "Included" : "Not set"}</li>
-                      <li>Events JSON: {clientEventsJson ? "Included" : "Not set"}</li>
-                      <li>Notes JSON: {clientNotesJson ? "Included" : "Not set"}</li>
-                      <li>Goals JSON: {clientGoalsJson ? "Included" : "Not set"}</li>
+                      <li>Assessments: {clientAssessments.filter((a) => a.enabled && a.questionSet).length > 0 ? `${clientAssessments.filter((a) => a.enabled && a.questionSet).length} configured` : "Not set"}</li>
+                      <li>Events: {clientEvents.filter((e) => e.enabled && e.title.trim()).length > 0 ? `${clientEvents.filter((e) => e.enabled && e.title.trim()).length} configured` : "Not set"}</li>
+                      <li>Notes: {clientNotes.filter((n) => n.enabled && n.text.trim()).length > 0 ? `${clientNotes.filter((n) => n.enabled && n.text.trim()).length} configured` : "Not set"}</li>
+                      <li>Goals: {clientGoals.filter((g) => g.enabled && g.title.trim()).length > 0 ? `${clientGoals.filter((g) => g.enabled && g.title.trim()).length} configured` : "Not set"}</li>
                       <li>JSON Override: {hasClientContextOverride ? "Enabled" : "Disabled"}</li>
                     </ul>
                   </div>
@@ -2529,46 +2847,420 @@ export default function MiaAudioTestBenchPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
-                    Assessments JSON (array)
-                    <textarea
-                      value={draftClientAssessmentsJson}
-                      onChange={(event) => setDraftClientAssessmentsJson(event.target.value)}
-                      placeholder='[ { "completed_at": "2026-03-01T09:00:00Z", "questionnaire": { ... } } ]'
-                      className="mt-2 min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-xs outline-none ring-indigo-500 focus:ring"
-                    />
-                  </label>
+                <div className="space-y-4">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Assessments (max 2)</p>
+                  {([0, 1] as const).map((index) => {
+                    const entry = draftClientAssessments[index];
+                    const updateEntry = (patch: Partial<AssessmentEntry>) =>
+                      setDraftClientAssessments((prev) => {
+                        const next = [{ ...prev[0] }, { ...prev[1] }] as [AssessmentEntry, AssessmentEntry];
+                        next[index] = { ...next[index], ...patch };
+                        return next;
+                      });
+                    return (
+                      <div key={index} className="rounded-md border border-slate-200 p-3 space-y-2">
+                        <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                          <input
+                            type="checkbox"
+                            checked={entry.enabled}
+                            onChange={(e) => updateEntry({ enabled: e.target.checked })}
+                            className="rounded border-slate-300"
+                          />
+                          Assessment {index + 1}
+                        </label>
+                        {entry.enabled && (
+                          <div className="grid grid-cols-2 gap-3">
+                            <label className="block text-xs font-medium text-slate-500">
+                              Question Set
+                              <select
+                                value={entry.questionSet}
+                                onChange={(e) => updateEntry({ questionSet: e.target.value })}
+                                className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+                              >
+                                <option value="">Select a question set…</option>
+                                {QUESTION_SETS.map((qs) => (
+                                  <option key={qs} value={qs}>
+                                    {formatSetName(qs)}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            <label className="block text-xs font-medium text-slate-500">
+                              Health Domain Name (optional)
+                              <select
+                                value={entry.healthDomainName}
+                                onChange={(e) => updateEntry({ healthDomainName: e.target.value })}
+                                className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+                              >
+                                <option value="">Not set</option>
+                                {HEALTH_DOMAIN_NAMES.map((hd) => (
+                                  <option key={hd} value={hd}>
+                                    {hd}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            <label className="block text-xs font-medium text-slate-500">
+                              Score Raw Value
+                              <input
+                                type="number"
+                                min={1}
+                                max={1000}
+                                value={entry.rawValue}
+                                onChange={(e) => updateEntry({ rawValue: e.target.value })}
+                                placeholder="e.g. 22"
+                                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+                              />
+                            </label>
+                            <label className="block text-xs font-medium text-slate-500">
+                              Score Range Label
+                              <input
+                                type="text"
+                                maxLength={40}
+                                value={entry.rangeLabel}
+                                onChange={(e) => updateEntry({ rangeLabel: e.target.value })}
+                                placeholder="e.g. Moderate"
+                                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+                              />
+                            </label>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
 
-                  <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
-                    Events JSON (array)
-                    <textarea
-                      value={draftClientEventsJson}
-                      onChange={(event) => setDraftClientEventsJson(event.target.value)}
-                      placeholder='[ { "title": "...", "created_at": "2026-03-10T14:00:00Z" } ]'
-                      className="mt-2 min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-xs outline-none ring-indigo-500 focus:ring"
-                    />
-                  </label>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Clinical Events (max 10)</p>
+                    {draftClientEvents.length < 10 && (
+                      <button
+                        type="button"
+                        onClick={() => setDraftClientEvents((prev) => [...prev, { ...EMPTY_EVENT }])}
+                        className="rounded border border-slate-300 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                      >
+                        + Add Event
+                      </button>
+                    )}
+                  </div>
+                  {draftClientEvents.map((entry, index) => {
+                    const updateEvent = (patch: Partial<EventEntry>) =>
+                      setDraftClientEvents((prev) => prev.map((e, i) => (i === index ? { ...e, ...patch } : e)));
+                    return (
+                      <div key={index} className="rounded-md border border-slate-200 p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                            <input
+                              type="checkbox"
+                              checked={entry.enabled}
+                              onChange={(e) => updateEvent({ enabled: e.target.checked })}
+                              className="rounded border-slate-300"
+                            />
+                            Event {index + 1}
+                          </label>
+                          {draftClientEvents.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => setDraftClientEvents((prev) => prev.filter((_, i) => i !== index))}
+                              className="text-xs text-red-500 hover:text-red-700"
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                        {entry.enabled && (
+                          <div className="grid grid-cols-2 gap-3">
+                            <label className="block text-xs font-medium text-slate-500">
+                              Title *
+                              <input
+                                type="text"
+                                maxLength={500}
+                                value={entry.title}
+                                onChange={(e) => updateEvent({ title: e.target.value })}
+                                placeholder="e.g. Elevated suicide risk flagged"
+                                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+                              />
+                            </label>
+                            <label className="block text-xs font-medium text-slate-500">
+                              Description
+                              <input
+                                type="text"
+                                maxLength={500}
+                                value={entry.description}
+                                onChange={(e) => updateEvent({ description: e.target.value })}
+                                placeholder="Optional description"
+                                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+                              />
+                            </label>
+                            <label className="block text-xs font-medium text-slate-500">
+                              Created At *
+                              <input
+                                type="datetime-local"
+                                value={entry.createdAt}
+                                onChange={(e) => updateEvent({ createdAt: e.target.value })}
+                                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+                              />
+                            </label>
+                            <label className="block text-xs font-medium text-slate-500">
+                              Resolved At
+                              <input
+                                type="datetime-local"
+                                value={entry.resolvedAt}
+                                onChange={(e) => updateEvent({ resolvedAt: e.target.value })}
+                                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+                              />
+                            </label>
+                            <label className="block text-xs font-medium text-slate-500">
+                              Resolution Option
+                              <select
+                                value={entry.resolutionOption}
+                                onChange={(e) => updateEvent({ resolutionOption: e.target.value })}
+                                className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+                              >
+                                <option value="">Not set</option>
+                                {RESOLUTION_OPTIONS.map((opt) => (
+                                  <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                              </select>
+                            </label>
+                            <label className="block text-xs font-medium text-slate-500">
+                              Resolution Text
+                              <input
+                                type="text"
+                                maxLength={500}
+                                value={entry.resolutionText}
+                                onChange={(e) => updateEvent({ resolutionText: e.target.value })}
+                                placeholder="Optional"
+                                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+                              />
+                            </label>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
 
-                  <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
-                    Notes JSON (array)
-                    <textarea
-                      value={draftClientNotesJson}
-                      onChange={(event) => setDraftClientNotesJson(event.target.value)}
-                      placeholder='[ { "text": "...", "occurred_at": "2026-03-10T14:30:00Z" } ]'
-                      className="mt-2 min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-xs outline-none ring-indigo-500 focus:ring"
-                    />
-                  </label>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Clinical Notes (max 10)</p>
+                    {draftClientNotes.length < 10 && (
+                      <button
+                        type="button"
+                        onClick={() => setDraftClientNotes((prev) => [...prev, { ...EMPTY_NOTE }])}
+                        className="rounded border border-slate-300 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                      >
+                        + Add Note
+                      </button>
+                    )}
+                  </div>
+                  {draftClientNotes.map((entry, index) => {
+                    const updateNote = (patch: Partial<NoteEntry>) =>
+                      setDraftClientNotes((prev) => prev.map((n, i) => (i === index ? { ...n, ...patch } : n)));
+                    return (
+                      <div key={index} className="rounded-md border border-slate-200 p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                            <input
+                              type="checkbox"
+                              checked={entry.enabled}
+                              onChange={(e) => updateNote({ enabled: e.target.checked })}
+                              className="rounded border-slate-300"
+                            />
+                            Note {index + 1}
+                          </label>
+                          {draftClientNotes.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => setDraftClientNotes((prev) => prev.filter((_, i) => i !== index))}
+                              className="text-xs text-red-500 hover:text-red-700"
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                        {entry.enabled && (
+                          <div className="grid grid-cols-2 gap-3">
+                            <label className="col-span-2 block text-xs font-medium text-slate-500">
+                              Text *
+                              <textarea
+                                maxLength={1000}
+                                value={entry.text}
+                                onChange={(e) => updateNote({ text: e.target.value })}
+                                placeholder="Clinical note text..."
+                                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring min-h-16"
+                              />
+                            </label>
+                            <label className="block text-xs font-medium text-slate-500">
+                              Author Role Type
+                              <select
+                                value={entry.authorRoleType}
+                                onChange={(e) => updateNote({ authorRoleType: e.target.value })}
+                                className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+                              >
+                                <option value="">Not set</option>
+                                {AUTHOR_ROLE_TYPES.map((role) => (
+                                  <option key={role} value={role}>{role}</option>
+                                ))}
+                              </select>
+                            </label>
+                            <label className="block text-xs font-medium text-slate-500">
+                              Occurred At *
+                              <input
+                                type="datetime-local"
+                                value={entry.occurredAt}
+                                onChange={(e) => updateNote({ occurredAt: e.target.value })}
+                                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+                              />
+                            </label>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
 
-                  <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
-                    Goals JSON (array)
-                    <textarea
-                      value={draftClientGoalsJson}
-                      onChange={(event) => setDraftClientGoalsJson(event.target.value)}
-                      placeholder='[ { "title": "...", "status": "active", "actions": [] } ]'
-                      className="mt-2 min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-xs outline-none ring-indigo-500 focus:ring"
-                    />
-                  </label>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Goals (max 10)</p>
+                    {draftClientGoals.length < 10 && (
+                      <button
+                        type="button"
+                        onClick={() => setDraftClientGoals((prev) => [...prev, { ...EMPTY_GOAL, actions: [] }])}
+                        className="rounded border border-slate-300 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                      >
+                        + Add Goal
+                      </button>
+                    )}
+                  </div>
+                  {draftClientGoals.map((entry, index) => {
+                    const updateGoal = (patch: Partial<GoalEntry>) =>
+                      setDraftClientGoals((prev) => prev.map((g, i) => (i === index ? { ...g, ...patch } : g)));
+                    const updateAction = (actionIndex: number, patch: Partial<GoalActionEntry>) =>
+                      setDraftClientGoals((prev) =>
+                        prev.map((g, i) =>
+                          i === index
+                            ? { ...g, actions: g.actions.map((a, ai) => (ai === actionIndex ? { ...a, ...patch } : a)) }
+                            : g,
+                        ),
+                      );
+                    return (
+                      <div key={index} className="rounded-md border border-slate-200 p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                            <input
+                              type="checkbox"
+                              checked={entry.enabled}
+                              onChange={(e) => updateGoal({ enabled: e.target.checked })}
+                              className="rounded border-slate-300"
+                            />
+                            Goal {index + 1}
+                          </label>
+                          {draftClientGoals.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => setDraftClientGoals((prev) => prev.filter((_, i) => i !== index))}
+                              className="text-xs text-red-500 hover:text-red-700"
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                        {entry.enabled && (
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                              <label className="block text-xs font-medium text-slate-500">
+                                Title *
+                                <input
+                                  type="text"
+                                  maxLength={500}
+                                  value={entry.title}
+                                  onChange={(e) => updateGoal({ title: e.target.value })}
+                                  placeholder="e.g. Return to Work"
+                                  className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+                                />
+                              </label>
+                              <label className="block text-xs font-medium text-slate-500">
+                                Status
+                                <select
+                                  value={entry.status}
+                                  onChange={(e) => updateGoal({ status: e.target.value })}
+                                  className="mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+                                >
+                                  {GOAL_STATUSES.map((s) => (
+                                    <option key={s} value={s}>{s}</option>
+                                  ))}
+                                </select>
+                              </label>
+                              <label className="col-span-2 block text-xs font-medium text-slate-500">
+                                Description
+                                <input
+                                  type="text"
+                                  maxLength={1000}
+                                  value={entry.description}
+                                  onChange={(e) => updateGoal({ description: e.target.value })}
+                                  placeholder="Optional description"
+                                  className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+                                />
+                              </label>
+                              <label className="block text-xs font-medium text-slate-500">
+                                End Date
+                                <input
+                                  type="date"
+                                  value={entry.endDate}
+                                  onChange={(e) => updateGoal({ endDate: e.target.value })}
+                                  className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+                                />
+                              </label>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <p className="text-xs font-medium text-slate-500">Actions (max 5)</p>
+                                {entry.actions.length < 5 && (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      updateGoal({ actions: [...entry.actions, { description: "", completed: false }] })
+                                    }
+                                    className="rounded border border-slate-300 px-2 py-0.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50"
+                                  >
+                                    + Action
+                                  </button>
+                                )}
+                              </div>
+                              {entry.actions.map((action, ai) => (
+                                <div key={ai} className="flex items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={action.completed}
+                                    onChange={(e) => updateAction(ai, { completed: e.target.checked })}
+                                    className="rounded border-slate-300"
+                                  />
+                                  <input
+                                    type="text"
+                                    maxLength={1000}
+                                    value={action.description}
+                                    onChange={(e) => updateAction(ai, { description: e.target.value })}
+                                    placeholder="Action description"
+                                    className="flex-1 rounded-md border border-slate-300 px-2 py-1 text-sm outline-none ring-indigo-500 focus:ring"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      updateGoal({ actions: entry.actions.filter((_, rem) => rem !== ai) })
+                                    }
+                                    className="text-xs text-red-500 hover:text-red-700"
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
 
                 <label className="block text-xs font-medium uppercase tracking-wide text-slate-500">
@@ -2591,10 +3283,10 @@ export default function MiaAudioTestBenchPage() {
                   onClick={() => {
                     setDraftClientAge(DEFAULT_CLIENT_DEMOGRAPHICS.age);
                     setDraftClientOptionalDemographics(EMPTY_OPTIONAL_DEMOGRAPHICS);
-                    setDraftClientAssessmentsJson("");
-                    setDraftClientEventsJson("");
-                    setDraftClientNotesJson("");
-                    setDraftClientGoalsJson("");
+                    setDraftClientAssessments([{ ...EMPTY_ASSESSMENT }, { ...EMPTY_ASSESSMENT }]);
+                    setDraftClientEvents([{ ...EMPTY_EVENT }]);
+                    setDraftClientNotes([{ ...EMPTY_NOTE }]);
+                    setDraftClientGoals([{ ...EMPTY_GOAL }]);
                     setDraftClientContextOverrideJson("");
                   }}
                   className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
