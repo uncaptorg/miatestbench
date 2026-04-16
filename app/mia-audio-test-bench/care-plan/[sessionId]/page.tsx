@@ -751,8 +751,9 @@ export default function MiaCarePlanPage() {
     }
   };
 
-  const requestCarePlan = async (requestedNotes?: string) => {
+  const requestCarePlan = async (requestedNotes?: string, overridePlanType?: "bmc" | "mental_health_plan") => {
     if (!sessionId) { setErrorMessage("Missing session id in route."); return; }
+    const effectivePlanType = overridePlanType ?? planType;
     setIsSubmitting(true);
     setErrorMessage("");
     setClinicianPlan(undefined);
@@ -761,11 +762,11 @@ export default function MiaCarePlanPage() {
     setKbEvidenceChunks([]);
     setKbEvidenceSources([]);
     setReasoningSummary("");
-    setCurrentPlanType(planType);
+    setCurrentPlanType(effectivePlanType);
 
     try {
       const trimmedNotes = (requestedNotes ?? notes).trim();
-      const body: Record<string, unknown> = { session_id: sessionId, plan_type: planType };
+      const body: Record<string, unknown> = { session_id: sessionId, plan_type: effectivePlanType };
       if (trimmedNotes) body.notes = trimmedNotes;
 
       const response = await fetch(buildUrl("/v1/mia/care-plans"), {
@@ -795,9 +796,11 @@ export default function MiaCarePlanPage() {
   const submitEditRequest = async () => {
     const trimmed = editNotes.trim();
     if (!trimmed) return;
-    await requestCarePlan(trimmed);
+    // Close modal immediately — don't lock the user inside during generation
     setIsEditModalOpen(false);
     setEditNotes("");
+    // Re-generate using the same plan type that was previously generated
+    await requestCarePlan(trimmed, currentPlanType);
   };
 
   useEffect(() => {
@@ -807,7 +810,7 @@ export default function MiaCarePlanPage() {
     return () => window.removeEventListener("keydown", handleEscape);
   }, [isEditModalOpen, closeEditModal]);
 
-  const hasContent = clinicianPlan !== null || patientPlan !== null;
+  const hasContent = clinicianPlan != null || patientPlan != null;
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
