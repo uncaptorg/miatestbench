@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 /** Safely coerce a value that should be an array — handles [UNKNOWN] strings and null/undefined */
 function toArr<T>(val: T[] | string | null | undefined): T[] {
@@ -83,8 +85,8 @@ type PatientPlan = {
 type CarePlanResponse = {
   status?: string;
   failure_reason?: string;
-  clinician_plan?: ClinicianPlanBMC & ClinicianPlanGP;
-  patient_plan?: PatientPlan;
+  clinician_plan?: string | (ClinicianPlanBMC & ClinicianPlanGP);
+  patient_plan?: string | PatientPlan;
   ooda_reasoning?: OodaReasoning;
   kb_evidence_chunks?: string[];
   kb_evidence_sources?: string[];
@@ -654,6 +656,14 @@ function PatientView({ plan }: { plan: PatientPlan }) {
   );
 }
 
+function MarkdownView({ content }: { content: string }) {
+  return (
+    <div className="max-w-none text-sm leading-relaxed text-slate-700 [&_h1]:text-xl [&_h1]:font-bold [&_h1]:text-slate-900 [&_h1]:mt-6 [&_h1]:mb-3 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-slate-800 [&_h2]:mt-5 [&_h2]:mb-2 [&_h3]:text-base [&_h3]:font-semibold [&_h3]:text-slate-800 [&_h3]:mt-4 [&_h3]:mb-2 [&_h4]:text-sm [&_h4]:font-semibold [&_h4]:text-slate-700 [&_h4]:mt-3 [&_h4]:mb-1 [&_h5]:text-sm [&_h5]:font-semibold [&_h5]:text-slate-600 [&_h5]:mt-2 [&_h5]:mb-1 [&_p]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-2 [&_li]:mb-1 [&_strong]:font-semibold [&_strong]:text-slate-800 [&_hr]:my-4 [&_hr]:border-slate-200 [&_table]:w-full [&_table]:border-collapse [&_table]:my-3 [&_table]:text-xs [&_thead]:bg-slate-100 [&_th]:border [&_th]:border-slate-200 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:font-semibold [&_th]:text-slate-700 [&_td]:border [&_td]:border-slate-200 [&_td]:px-3 [&_td]:py-2 [&_td]:text-slate-600 [&_tr:hover]:bg-slate-50">
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Main page
 // ---------------------------------------------------------------------------
@@ -671,7 +681,7 @@ export default function MiaCarePlanPage() {
   const [planId, setPlanId] = useState("");
   const [planStatus, setPlanStatus] = useState("IDLE");
   const [clinicianPlan, setClinicianPlan] = useState<CarePlanResponse["clinician_plan"]>(undefined);
-  const [patientPlan, setPatientPlan] = useState<PatientPlan | null>(null);
+  const [patientPlan, setPatientPlan] = useState<string | PatientPlan | null>(null);
   const [oodaReasoning, setOodaReasoning] = useState<OodaReasoning | null>(null);
   const [kbEvidenceChunks, setKbEvidenceChunks] = useState<string[]>([]);
   const [kbEvidenceSources, setKbEvidenceSources] = useState<string[]>([]);
@@ -937,7 +947,7 @@ export default function MiaCarePlanPage() {
                           title={sourceName}
                         >
                           {sourceName}
-                        </span>
+            </span>
                       )}
                     </div>
                     <span className="text-xs leading-relaxed text-indigo-900">{chunk.trim()}</span>
@@ -973,7 +983,7 @@ export default function MiaCarePlanPage() {
               Request Edit
             </button>
                 )}
-                {currentPlanType === "bmc" && (
+                {(currentPlanType === "bmc" || typeof clinicianPlan === "string") && (
                   <div className="flex rounded-lg border bg-slate-100 p-1 gap-1">
                     <button
                       type="button"
@@ -992,8 +1002,8 @@ export default function MiaCarePlanPage() {
                       }`}
                     >
                       Patient
-                    </button>
-                  </div>
+            </button>
+          </div>
                 )}
               </div>
             </div>
@@ -1001,24 +1011,32 @@ export default function MiaCarePlanPage() {
             <Card>
               <div className="mb-4 flex items-center justify-between border-b pb-4">
                 <span className="text-sm font-bold text-slate-700">
-                  {currentPlanType === "mental_health_plan"
-                    ? "GP Mental Health Treatment Plan"
-                    : activeView === "clinician" ? "Care Planning Report" : "Your Care Plan"}
-                  {clinicianPlan?.clientInformation?.name ? ` — ${clinicianPlan.clientInformation.name}` : ""}
+                  {typeof clinicianPlan === "string"
+                    ? (activeView === "clinician" ? "Clinician Plan" : "Patient Plan")
+                    : currentPlanType === "mental_health_plan"
+                      ? "GP Mental Health Treatment Plan"
+                      : activeView === "clinician" ? "Care Planning Report" : "Your Care Plan"}
+                  {typeof clinicianPlan === "object" && clinicianPlan?.clientInformation?.name ? ` — ${clinicianPlan.clientInformation.name}` : ""}
                 </span>
                 <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
                   Draft — awaiting clinician review
                 </span>
               </div>
 
-              {currentPlanType === "mental_health_plan" && clinicianPlan && (
+              {typeof clinicianPlan === "string" && activeView === "clinician" && (
+                <MarkdownView content={clinicianPlan} />
+              )}
+              {typeof patientPlan === "string" && activeView === "patient" && (
+                <MarkdownView content={patientPlan} />
+              )}
+              {typeof clinicianPlan === "object" && clinicianPlan && currentPlanType === "mental_health_plan" && (
                 <ClinicianGPView plan={clinicianPlan as ClinicianPlanGP} />
               )}
-              {currentPlanType === "bmc" && activeView === "clinician" && clinicianPlan && (
+              {typeof clinicianPlan === "object" && clinicianPlan && currentPlanType === "bmc" && activeView === "clinician" && (
                 <ClinicianBMCView plan={clinicianPlan as ClinicianPlanBMC} />
               )}
-              {currentPlanType === "bmc" && activeView === "patient" && patientPlan && (
-                <PatientView plan={patientPlan} />
+              {typeof patientPlan === "object" && patientPlan && currentPlanType === "bmc" && activeView === "patient" && (
+                <PatientView plan={patientPlan as PatientPlan} />
               )}
               {currentPlanType === "bmc" && activeView === "patient" && !patientPlan && (
                 <p className="text-sm text-slate-400">Patient plan not available.</p>

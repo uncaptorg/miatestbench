@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { label: "MIA Diagram", href: "/mia-api" },
   { label: "Audio Use Case", href: "/audio-use-case" },
   { label: "Audio Test Bench", href: "/mia-audio-test-bench" },
+  { label: "Care Plan", href: "/mia-audio-test-bench/care-plan" },
 ];
 
 export default function SiteNavigation() {
